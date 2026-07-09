@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\LoginOTPMail;
-use App\Mail\LoginNotificationMail;
+// use App\Mail\LoginNotificationMail;
 
 class userController extends Controller
 {
@@ -174,6 +174,7 @@ class userController extends Controller
         // 3. ADMIN / SUB_ADMIN ke liye OTP Logic (Naya Addition)
         if ($user->role === 'admin' || $user->role === 'sub_admin') {
             $otp = rand(100000, 999999);
+            //$otp = 636363;
             $user->login_token = $otp;
             $user->login_token_expires_at = now()->addMinutes(15);
             $user->save();
@@ -190,7 +191,7 @@ class userController extends Controller
         // 4. NORMAL USERS / SUPPORT ke liye Notification aur Redirect
         
         // Har login par notification bhejega (Naya Addition)
-        $this->sendLoginNotification($user);
+        // $this->sendLoginNotification($user);
 
         if ($user->role === 'support') {
             return redirect()->route('supportNumbers');
@@ -243,7 +244,7 @@ class userController extends Controller
         session()->forget('otp_email');
 
         // Baqi Admins ko notification bhejien
-        $this->sendLoginNotification($user);
+        // $this->sendLoginNotification($user);
 
         // Role ke mutabiq redirect karein
         if ($user->role === 'admin' || $user->role === 'sub_admin') {
@@ -253,26 +254,26 @@ class userController extends Controller
         return redirect()->route('viewHome');
     }
 
-    private function sendLoginNotification($loggedInUser)
-    {
-        // Saare Admins aur Sub-Admins ko nikaalein
-        $admins = User::whereIn('role', ['admin', 'sub_admin'])->get();
+    // private function sendLoginNotification($loggedInUser)
+    // {
+    //     // Saare Admins aur Sub-Admins ko nikaalein
+    //     $admins = User::whereIn('role', ['admin', 'sub_admin'])->get();
         
-        $time = now()->format('Y-m-d H:i:s');
-        $ip = request()->ip();
+    //     $time = now()->format('Y-m-d H:i:s');
+    //     $ip = request()->ip();
 
-        foreach ($admins as $admin) {
-            // Jo user login hua hai usay khud ko email na jaye (Optional)
-            if ($admin->id !== $loggedInUser->id) {
-                \Illuminate\Support\Facades\Mail::to($admin->email)->send(new \App\Mail\LoginNotificationMail(
-                    $loggedInUser->name,
-                    $loggedInUser->email,
-                    $time,
-                    $ip
-                ));
-            }
-        }
-    }
+    //     foreach ($admins as $admin) {
+    //         // Jo user login hua hai usay khud ko email na jaye (Optional)
+    //         if ($admin->id !== $loggedInUser->id) {
+    //             \Illuminate\Support\Facades\Mail::to($admin->email)->send(new \App\Mail\LoginNotificationMail(
+    //                 $loggedInUser->name,
+    //                 $loggedInUser->email,
+    //                 $time,
+    //                 $ip
+    //             ));
+    //         }
+    //     }
+    // }
 
 ///// End Here Otp Process ////////
 
@@ -284,7 +285,7 @@ class userController extends Controller
 
     public function sendMail()
     {
-        Mail::to('balochmuhammad817@gmail.com')->send(new sendAgentMail('Hello Muhammad', 'kdmflaksmdflkmslkdmflksm'));
+        Mail::to('mfaizan518@gmail.com')->send(new sendAgentMail('Hello Muhammad', 'kdmflaksmdflkmslkdmflksm'));
     }
 
     public function activateUser($id)

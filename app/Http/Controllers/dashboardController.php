@@ -161,7 +161,80 @@ class dashboardController extends Controller
         $NewSalecurentSale = OldCustomer::with('user')
             ->whereDate('regitr_date', today())
             ->get();
+
         $curentSale    = $oldSalecustomerExpriDate->merge($NewSalecurentSale);
+
+                // --- NEW SEARCH LOGIC (Separate & Independent) ---
+        $searchResultsLeads = collect();
+        $searchResultsSales = collect();
+        $searchResultsTrials = collect();
+        $searchResultsNumbers = collect();
+
+        if ($req->has('search') && !empty($req->search)) {
+            $search = $req->search;
+
+            // 1. Leads Search
+            $searchResultsLeads = \App\Models\customer::with('user')
+                ->where('status', 'lead')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            // 2. Sales Search (Dono tables me)
+            $salesOld = \App\Models\customer::with('user')
+                ->where('status', 'sale')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            $salesNew = \App\Models\oldCustomer::with('user')
+                ->where('status', 'sale')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            $searchResultsSales = $salesOld->merge($salesNew);
+
+            // 3. Trials Search
+            $searchResultsTrials = \App\Models\customer::with('user')
+                ->where('status', 'trial')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            // 4. Distribute Numbers (CustomerNumber) Search
+            $searchResultsNumbers = \App\Models\customerNumber::with('user')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+        }
+
+        ///// end here new logic code ////
+
         $leaveRequests = $this->getLeaveRequest();
         return view('admin.dashbord', compact([
             'userCount',
@@ -172,6 +245,10 @@ class dashboardController extends Controller
             'help',
             'curentSale',
             'leaveRequests',
+            'searchResultsLeads',    // <-- NAYA ADD HUA
+            'searchResultsSales',    // <-- NAYA ADD HUA
+            'searchResultsTrials',   // <-- NAYA ADD HUA
+            'searchResultsNumbers'   // <-- NAYA ADD HUA
         ]));
     }
 
@@ -515,7 +592,8 @@ class dashboardController extends Controller
     }
     public function viewHelpRequestTableDashboard()
     {
-        $helpRequest = help::all();
+        // $helpRequest = help::all();
+        $helpRequest = help::latest()->take(50)->get();
         return view('admin.helpTable', compact('helpRequest'));
     }
 

@@ -6,18 +6,45 @@
     <div class="content-wrapper">
         <div class="content-header">
             <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Dashboard</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <form action="" method="get" id="filterbyMonthForm">
-                            <label for="exampleInputEmail1">Filter By Month</label>
-                            <input type="month" class="form-control" name="date"
-                                aria-label="Text input with 2 dropdown buttons" id="filterbyMonth">
-                        </form>
-                    </div>
+<!--  ////////// New Code Add For Search /////// -->
+
+            <div class="row mb-2 align-items-end">
+    <!-- 1. Left Column: Dashboard Heading -->
+    <div class="col-sm-4">
+        <h1 class="m-0">Dashboard</h1>
+    </div>
+    
+    <!-- 2. Middle Column: Completely Separate Search Bar (Naya) -->
+    <div class="col-sm-4">
+        <form action="" method="get" id="dashboardSearchForm">
+            <label for="dashboardSearch">Search Reports & Numbers</label>
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" id="dashboardSearch" 
+                       placeholder="Search name, number, email..." value="{{ request('search') }}">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if(request()->has('search'))
+                        <a href="{{ route('dashboard') }}" class="btn btn-danger"><i class="fas fa-times"></i></a>
+                    @endif
                 </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 3. Right Column: Existing Filter By Month (100% Unchanged, Pehle wala) -->
+    <div class="col-sm-4">
+        <form action="" method="get" id="filterbyMonthForm">
+            <label for="exampleInputEmail1">Filter By Month</label>
+            <input type="month" class="form-control" name="date"
+                aria-label="Text input with 2 dropdown buttons" id="filterbyMonth" value="{{ request('date') }}">
+        </form>
+    </div>
+</div>
+
+            <!--  ////////// End Here New Code Add For Search /////// -->
+
             </div>
         </div>
        
@@ -112,6 +139,156 @@
 
                 </div>
         </section>
+
+        <!--  ////////// New Code Add For Search Results /////// -->
+        @if(request()->has('search') && request('search') != '')
+        <div class="container-fluid mt-4 mb-4">
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-search mr-1"></i> Search Results for "{{ request('search') }}"
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Tabs Headers -->
+                    <ul class="nav nav-tabs" id="searchTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="leads-tab" data-toggle="tab" href="#leads-result" role="tab">Leads ({{ $searchResultsLeads->count() }})</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="sales-tab" data-toggle="tab" href="#sales-result" role="tab">Sales ({{ $searchResultsSales->count() }})</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="trials-tab" data-toggle="tab" href="#trials-result" role="tab">Trials ({{ $searchResultsTrials->count() }})</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="numbers-tab" data-toggle="tab" href="#numbers-result" role="tab">Distributed Numbers ({{ $searchResultsNumbers->count() }})</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tabs Content Panels -->
+                    <div class="tab-content mt-3">
+                        <!-- LEADS TAB -->
+                        <div class="tab-pane fade show active" id="leads-result" role="tabpanel">
+                            @if($searchResultsLeads->isEmpty())
+                                <div class="alert alert-light text-muted">No Lead records matched your search.</div>
+                            @else
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Number</th>
+                                            <th>Email</th>
+                                            <th>Agent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($searchResultsLeads as $leadData)
+                                            <tr>
+                                                <td>{{ $leadData->customer_name }}</td>
+                                                <td>{{ $leadData->customer_number }}</td>
+                                                <td>{{ $leadData->customer_email }}</td>
+                                                <td>{{ $leadData->user->name ?? 'N/A' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+
+                        <!-- SALES TAB -->
+                        <div class="tab-pane fade" id="sales-result" role="tabpanel">
+                            @if($searchResultsSales->isEmpty())
+                                <div class="alert alert-light text-muted">No Sales records matched your search.</div>
+                            @else
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Number</th>
+                                            <th>Email</th>
+                                            <th>Price</th>
+                                            <th>Agent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($searchResultsSales as $saleData)
+                                            <tr>
+                                                <td>{{ $saleData->customer_name }}</td>
+                                                <td>{{ $saleData->customer_number }}</td>
+                                                <td>{{ $saleData->customer_email }}</td>
+                                                <td>${{ $saleData->price }}</td>
+                                                <td>{{ $saleData->user->name ?? 'N/A' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+
+                        <!-- TRIALS TAB -->
+                        <div class="tab-pane fade" id="trials-result" role="tabpanel">
+                            @if($searchResultsTrials->isEmpty())
+                                <div class="alert alert-light text-muted">No Trial records matched your search.</div>
+                            @else
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Number</th>
+                                            <th>Email</th>
+                                            <th>Agent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($searchResultsTrials as $trialData)
+                                            <tr>
+                                                <td>{{ $trialData->customer_name }}</td>
+                                                <td>{{ $trialData->customer_number }}</td>
+                                                <td>{{ $trialData->customer_email }}</td>
+                                                <td>{{ $trialData->user->name ?? 'N/A' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+
+                        <!-- DISTRIBUTED NUMBERS TAB -->
+                        <div class="tab-pane fade" id="numbers-result" role="tabpanel">
+                            @if($searchResultsNumbers->isEmpty())
+                                <div class="alert alert-light text-muted">No Distributed Numbers matched your search.</div>
+                            @else
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Number</th>
+                                            <th>Agent</th>
+                                            <th>Status</th>
+                                            <th>Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($searchResultsNumbers as $numberData)
+                                            <tr>
+                                                <td>{{ $numberData->customer_name }}</td>
+                                                <td>{{ $numberData->customer_number }}</td>
+                                                <td>{{ $numberData->user->name ?? 'N/A' }}</td>
+                                                <td><span class="badge badge-warning">{{ $numberData->status }}</span></td>
+                                                <td>{{ $numberData->remarks ?? 'No Remarks' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+        <!--  ////////// End Here New Code Add For Search Results /////// -->
 
         @if ($curentSale->isEmpty())
         @else

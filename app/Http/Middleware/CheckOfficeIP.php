@@ -9,15 +9,16 @@ class CheckOfficeIP
     public function handle(Request $request, Closure $next)
     {
         $userIp = $request->ip();
+        \Log::info('User IP: ' . $userIp);
 
         if (strpos($userIp, ':') !== false) {
-            return redirect()->back()->with(['error' => 'Access Denied.']);
+            abort(403, 'Access Denied.');
         }
 
         $allowedIps = explode(',', env('ALLOWED_IPS'));
 
         if (! in_array($userIp, $allowedIps)) {
-            return redirect()->back()->with(['error' => 'Access Denied.']);
+            abort(403, 'Access Denied.');
         }
         
         return $next($request);
