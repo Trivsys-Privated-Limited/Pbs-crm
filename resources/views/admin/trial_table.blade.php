@@ -83,6 +83,8 @@
                                                     class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
                                                 <a href="{{ route('deleteTrialCustomerDetails', $customer->id) }}"
                                                     class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                                <a href="{{ route('distributeSingleTrialForm', $customer->id) }}"
+                                                    class="btn btn-warning" title="Distribute Trial"><i class="fa-solid fa-share"></i></a>
                                             </td>
                                         @else
                                             <td>

@@ -310,6 +310,40 @@ class dashboardController extends Controller
         return view('admin.sale_table', compact('customers'));
     }
 
+    public function distributeSingleSaleForm(string $id)
+    {
+        $oldcustomer = Customer::with('user')->find($id);
+        $newcustomer = OldCustomer::with('user')->find($id);
+        $customer = $oldcustomer ? $oldcustomer : $newcustomer;
+
+        $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
+        return view('admin.dis_single_sale', compact(['agents', 'customer']));
+    }
+
+    public function updateSingleSaleAgent(Request $req, string $id)
+    {
+        $req->validate([
+            'agent' => 'required',
+        ]);
+        
+        $oldcustomer = Customer::find($id);
+        $newcustomer = OldCustomer::find($id);
+        $customer = $oldcustomer ? $oldcustomer : $newcustomer;
+
+        $newAgent = User::find($req->agent);
+
+        if ($customer->getTable() == 'customers') {
+            $customer->a_name = $newAgent->id;
+            $customer->user_name = $newAgent->name;
+        } else {
+            $customer->agent = $newAgent->id;
+            $customer->agent_name = $newAgent->name;
+        }
+        $customer->save();
+
+        return redirect()->back()->with(['success' => 'Sale Distributed Successfully']);
+    }
+
     public function cutomerUPdateSaleDetailFormVIew(string $id)
     {
         $oldcustomers = customer::find($id);
@@ -428,6 +462,29 @@ class dashboardController extends Controller
         return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfuly']);
     }
 
+    public function distributeSingleLeadForm(string $id)
+    {
+        $customer = Customer::with('user')->find($id);
+        $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
+        return view('admin.dis_single_lead', compact(['agents', 'customer']));
+    }
+
+    public function updateSingleLeadAgent(Request $req, string $id)
+    {
+        $req->validate([
+            'agent' => 'required',
+        ]);
+        
+        $customer = Customer::find($id);
+        $newAgent = User::find($req->agent);
+
+        $customer->a_name = $newAgent->id;
+        $customer->user_name = $newAgent->name;
+        $customer->save();
+
+        return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Lead Distributed Successfully']);
+    }
+
     public function cutomerUPdateDetailFormVIew(string $id)
     {
         $customer = customer::find($id);
@@ -526,6 +583,29 @@ class dashboardController extends Controller
             }
         }
         return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfuly']);
+    }
+
+    public function distributeSingleTrialForm(string $id)
+    {
+        $customer = Customer::with('user')->find($id);
+        $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
+        return view('admin.dis_single_trial', compact(['agents', 'customer']));
+    }
+
+    public function updateSingleTrialAgent(Request $req, string $id)
+    {
+        $req->validate([
+            'agent' => 'required',
+        ]);
+        
+        $customer = Customer::find($id);
+        $newAgent = User::find($req->agent);
+
+        $customer->a_name = $newAgent->id;
+        $customer->user_name = $newAgent->name;
+        $customer->save();
+
+        return redirect()->back()->with(['success' => 'Trial Distributed Successfully']);
     }
 
     public function cutomerUPdateTrialDetailFormVIew(string $id)

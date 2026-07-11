@@ -88,6 +88,8 @@
                                                 class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i></a>
                                             <a href="{{ route('deleteSaleCustomerDetails', $customer->id) }}"
                                                 class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                            <a href="{{ route('distributeSingleSaleForm', $customer->id) }}"
+                                                class="btn btn-warning" title="Distribute Sale"><i class="fa-solid fa-share"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
