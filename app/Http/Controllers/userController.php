@@ -173,8 +173,8 @@ class userController extends Controller
 
         // 3. ADMIN / SUB_ADMIN ke liye OTP Logic (Naya Addition)
         if ($user->role === 'admin' || $user->role === 'sub_admin') {
-            //$otp = rand(100000, 999999);
-            $otp = 636363;
+            $otp = rand(100000, 999999);
+            //$otp = 636363;
             $user->login_token = $otp;
             $user->login_token_expires_at = now()->addMinutes(15);
             $user->save();
