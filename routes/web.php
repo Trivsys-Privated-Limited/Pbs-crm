@@ -198,9 +198,13 @@ Route::controller(CustomerController::class)->group(function () {
 Route::controller(HelpController::class)->group(function () {
     Route::get('/help-Request', 'viewHelpForm')->name('help')->middleware(validUser::class);
     Route::get('/help-Detail', 'viewHelpTable')->name('viewHelpTable')->middleware(validUser::class);
-    Route::get('/update/{id}/remarks', 'updateRemarksForm')->name('updateRemarksForm')->middleware(validUser::class);
     Route::post('/storeHelpRequest', 'storeHelpRequest')->name('storeHelpRequest')->middleware(validUser::class);
-    Route::post('/agent/{id}/remarks-update', 'agentRemarksUpdate')->name('agentRemarksUpdate')->middleware(validUser::class);
+    Route::get('/help/{id}/chat', 'chatView')->name('help.chat')->middleware(validUser::class);
+    Route::post('/help/{id}/chat', 'sendMessage')->name('help.sendMessage')->middleware(validUser::class);
+    Route::get('/support/help-requests', 'viewAllHelpRequestsForSupport')->name('support.helpRequests')->middleware(validUser::class);
+    Route::post('/support/help/{id}/update-status', 'updateHelpStatus')->name('support.updateHelpStatus')->middleware(validUser::class);
+    // New Route For Resolve Status View
+    Route::get('/support/resolved-requests', 'viewResolvedHelpRequestsForSupport')->name('support.resolvedRequests')->middleware(validUser::class);
 });
 
 Route::get('/employee/profile', [EmployeController::class, 'viewEmployeeProfile'])->name('employee.profile');

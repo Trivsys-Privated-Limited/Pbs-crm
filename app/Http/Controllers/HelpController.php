@@ -46,20 +46,73 @@ class HelpController extends Controller
         return view('front.help_view', compact('helpRequestDetail'));
     }
 
-    public function updateRemarksForm(string $id)
+    public function viewAllHelpRequestsForSupport()
     {
-        $help = help::find($id);
-        return view('front.updateRemarks', compact('help'));
+        // Yahan humne '!=' (not equal to) laga diya hy,
+        // toh ab yeh resolve wali requests yahan show nahi karega.
+        $helpRequestDetail = help::where('status', '!=', 'resolve')->latest()->get();
+        return view('front.support_help_requests', compact('helpRequestDetail'));
     }
 
-    public function agentRemarksUpdate(Request $req, string $id)
+    public function updateHelpStatus(Request $req, string $id)
     {
         $req->validate([
-            'remarks' => 'required'
+            'status' => 'required|in:pending,working,resolve',
         ]);
-        $help = help::find($id);
-        $help->remarks = $req->remarks;
+
+        $user = Auth::user();
+        if ($user->role !== 'support' && $user->role !== 'admin' && $user->role !== 'sub_admin') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $help = help::findOrFail($id);
+        $help->status = trim($req->status);
         $help->save();
-        return redirect()->route('viewHelpTable')->with(['success' => 'Remarks Updated Successfuly']);
+
+        return redirect()->back()->with(['success' => 'Status updated successfully!']);
+    }
+
+    public function chatView(Request $req, string $id)
+    {
+        $help = help::with(['messages.sender'])->findOrFail($id);
+
+        $user = Auth::user();
+        // Sirf normal 'user' role wale restrict hain ke woh sirf apni request dekh sakein
+        // Support, admin, sub_admin sab dekh sakte hain
+        if ($user->role === 'user' && $help->user_id != $user->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        return view('front.help_chat', compact('help'));
+    }
+
+    public function sendMessage(Request $req, string $id)
+    {
+        $req->validate([
+            'message' => 'required|string'
+        ]);
+
+        $help = help::findOrFail($id);
+        $user = Auth::user();
+
+        // Sirf normal 'user' role wale restrict hain
+        if ($user->role === 'user' && $help->user_id != $user->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        \App\Models\HelpMessage::create([
+            'help_id' => $help->id,
+            'sender_id' => $user->id,
+            'message' => $req->message,
+        ]);
+
+        return redirect()->route('help.chat', $id)->with(['success' => 'Message sent.']);
+    }
+
+    public function viewResolvedHelpRequestsForSupport()
+    {
+        // Sirf 'resolve' status wali requests filter kar k bhej rahy hain
+        $helpRequestDetail = help::where('status', 'resolve')->latest()->get();
+        return view('front.support_resolved_requests', compact('helpRequestDetail'));
     }
 }

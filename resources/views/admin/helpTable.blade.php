@@ -62,6 +62,8 @@
                                             <td>
                                                 <a href="{{ route('downHelpRequestStatus', $data->id) }}"
                                                     class="btn btn-primary btn-sm staus">Update Status</a>
+                                                <a href="{{ route('help.chat', $data->id) }}"
+                                                    class="btn btn-info btn-sm">Chat</a>
                                             </td>
                                         </tr>
                                     @endif
@@ -78,8 +80,9 @@
                                                     <span class="bg-success py-1 px-2 rounded text-white">Resolve</span>
                                                 @elseif($data->status === 'working')
                                                     <span class="bg-primary py-1 px-2 rounded text-white">Working</span>
-                                                @else
-                                                    <span class="bg-danger py-1 px-2 rounded text-white">Refund</span>
+                                                <!--Yahan py (else) esle Condition thi Refund ko chalny ky liye -->
+                                                    <!-- <span class="bg-danger py-1 px-2 rounded text-white">Refund</span> -->
+                                                    
                                                 @endif
                                             </td>
                                             <td> {{ $data->user_name }}</td>
@@ -91,6 +94,8 @@
                                                     <a href="{{ route('downHelpRequestStatus', $data->id) }}"
                                                         class="btn btn-primary btn-sm staus">Update Status</a>
                                                 @endif
+                                                <a href="{{ route('help.chat', $data->id) }}"
+                                                    class="btn btn-info btn-sm">Chat</a>
                                             </td>
                                         </tr>
                                     @endif

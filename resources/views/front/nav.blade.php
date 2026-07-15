@@ -7,8 +7,11 @@
             <div class="me-12">
                 <ul class="flex justify-center place-items-center gap-[1rem] ">
                     <li class=""><a href="{{ route('supportNumbers') }}" class="text-white">Support</a></li>
-                    <li class=""><a href="{{ route('daniyalNumbers') }}" class="text-white">Daniyal</a></li>
-                    <li class=""><a href="{{ route('saadNumbers') }}" class="text-white">Saad</a></li>
+                    <!-- daniyal number 
+                        saad number 
+                    view route show here -->
+                    <li class=""><a href="{{ route('support.helpRequests') }}" class="text-white">Help Requests</a></li>
+                    <li class=""><a href="{{ route('support.resolvedRequests') }}" class="text-white">Resolved Requests</a></li>
                 </ul>
             </div>
         @else

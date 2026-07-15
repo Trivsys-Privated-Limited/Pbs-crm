@@ -37,12 +37,12 @@
                         <td class="px-4 py-2 border border-gray-300 customer">
                             @if ($data->status === 'pending')
                                 <span class="bg-warning py-1 px-2 rounded text-white">Pending</span>
-                            @elseif($data->status === 'resolve')
-                                <span class="bg-success py-1 px-2 rounded text-white">Resolved</span>
                             @elseif($data->status === 'working')
                                 <span class="bg-primary py-1 px-2 rounded text-white">Working</span>
-                            @else
-                                <span class="bg-danger py-1 px-2 rounded text-white">Refund</span>
+                                @elseif($data->status === 'resolve')
+                                <span class="bg-success py-1 px-2 rounded text-white">Resolved</span>
+                            <!-- yahan py (else) condition thi refund ko chalny ky liye -->
+                                <!-- <span class="bg-danger py-1 px-2 rounded text-white">Refund</span> -->
                             @endif
                         </td>
                         <td class="px-4 py-2 border border-gray-300 customer">{{ $data->help_reason }}</td>
@@ -50,10 +50,8 @@
                         <td class="px-4 py-2 border border-gray-300 customer">
                             {{ \Carbon\Carbon::parse($data->created_at)->format('d M, Y') }}</td>
                         <td class="px-4 py-2 border border-gray-300 customer">
-                            @if ($data->status == 'pending' || $data->status == 'working')
-                                <a href="{{ route('updateRemarksForm', $data->id) }}"
-                                    class="btn btn-primary btn-sm">update</a>
-                            @endif
+                            <a href="{{ route('help.chat', $data->id) }}"
+                               class="btn btn-primary btn-sm">Chat</a>
                         </td>
                     </tr>
                 @endforeach

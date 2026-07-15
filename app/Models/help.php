@@ -19,6 +19,11 @@ class help extends Model
     ];
 
     public function user(){
-        $this->belongsTo(user::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(HelpMessage::class);
     }
 }
