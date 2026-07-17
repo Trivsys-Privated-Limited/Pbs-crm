@@ -16,6 +16,7 @@ use App\Http\Middleware\validRole;
 use App\Http\Middleware\validUser;
 use App\Http\Middleware\CheckOfficeIP;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::middleware(CheckOfficeIP::class)->group(function () {
 Route::controller(dashboardController::class)->group(function () {
@@ -53,18 +54,39 @@ Route::controller(dashboardController::class)->group(function () {
     Route::get('/dashboard/all-agent-lead-reports/{id}/', 'viewleadtable')->name('viewleadtable')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/distribute-lead/{id}/', 'distributeLeadsForm')->name('distributeLeadsForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/updateLeadAgent/{id}', 'updateLeadAgent')->name('updateLeadAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// Start Single Lead Distribute route  ///
     Route::get('/dashboard/{id}/distribute-single-lead', 'distributeSingleLeadForm')->name('distributeSingleLeadForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSingleLeadAgent', 'updateSingleLeadAgent')->name('updateSingleLeadAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Single lead Distribute route  ///
+    /// Start Multiple Lead Distribute route  ///
+    Route::post('/dashboard/distribute-multiple-leads', 'distributeMultipleLeadForm')->name('distributeMultipleLeadForm')->middleware(validUser::class)->middleware(validRole::class);
+    Route::post('/dashboard/save-multiple-leads-distribution', 'saveMultipleLeadDistribution')->name('saveMultipleLeadDistribution')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Multiple Lead Distribute route  ///
     Route::get('/dashboard/{id}/distribute-number', 'distributeNumberForm')->name('distributeNumberForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/distributeNumberToAgent', 'distributeNumberToAgent')->name('distributeNumberToAgent')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/{id}/distributesaleToAgent', 'viewAgentDistributeSale')->name('viewAgentDistributeSale')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSaleAgent', 'updateSaleAgent')->name('updateSaleAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// Start Single Sale Distribute route  ///
     Route::get('/dashboard/{id}/distribute-single-sale', 'distributeSingleSaleForm')->name('distributeSingleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSingleSaleAgent', 'updateSingleSaleAgent')->name('updateSingleSaleAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Single Sale Distribute route  ///
+    /// Start Multiple Sale Distribute route  ///
+    //Route::post('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
+    //Route::any('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
+    // Route::any ko hata kar wapas Route::post kar dein
+    Route::post('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
+    Route::post('/dashboard/save-multiple-sales-distribution', 'saveMultipleSaleDistribution')->name('saveMultipleSaleDistribution')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Multiple Sale Distribute route  ///
     Route::get('/dashboard/{id}/all-agent-trial-report', 'viewtrialtable')->name('viewtrialtable')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/{id}/distributeTrialsForm', 'distributeTrialsForm')->name('distributeTrialsForm')->middleware(validUser::class)->middleware(validRole::class);
+    /// Start Single Trial Distribute Route ///
     Route::get('/dashboard/{id}/distribute-single-trial', 'distributeSingleTrialForm')->name('distributeSingleTrialForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSingleTrialAgent', 'updateSingleTrialAgent')->name('updateSingleTrialAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Single Trial Distribute Route ///
+    /// Start Multiple Trial Distribute route  ///
+    Route::post('/dashboard/distribute-multiple-trials', 'distributeMultipleTrialForm')->name('distributeMultipleTrialForm')->middleware(validUser::class)->middleware(validRole::class);
+    Route::post('/dashboard/save-multiple-trials-distribution', 'saveMultipleTrialDistribution')->name('saveMultipleTrialDistribution')->middleware(validUser::class)->middleware(validRole::class);
+    /// End Multiple Trial Distribute route  ///
     Route::post('/dashboard/{id}/updateTrialAgent', 'updateTrialAgent')->name('updateTrialAgent')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/all-agent-sale', 'filterSaleByDate')->name('filterSaleByDate')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/all-peding-sale', 'viewPendingSale')->name('viewPendingSale')->middleware(validUser::class)->middleware(validRole::class);
@@ -220,3 +242,20 @@ Route::controller(userController::class)->group(function () {
     Route::post('/verify-otp-store', 'verifyOtpStore')->name('verifyOtpStore');
     Route::get('/logout', 'logout')->name('logout');
 });
+///// Notification Route ////
+
+// Mark All as Read Route (Comment hata diya hai aur middleware theek kar diya hai)
+Route::get('/notifications/mark-as-read', function() {
+    Illuminate\Support\Facades\Auth::user()->unreadNotifications->markAsRead();
+    return redirect()->back();
+})->name('notifications.markAsRead')->middleware(App\Http\Middleware\validUser::class);
+
+// Single Notification Read Route
+Route::get('/notifications/{id}/read', function($id) {
+    $notification = Illuminate\Support\Facades\Auth::user()->notifications()->find($id);
+    if($notification) {
+        $notification->markAsRead(); // Notification ko read mark kiya
+        return redirect($notification->data['url']); // User ko asal page par bhej diya
+    }
+    return redirect()->back();
+})->name('notification.read')->middleware(App\Http\Middleware\validUser::class);

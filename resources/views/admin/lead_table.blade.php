@@ -24,6 +24,9 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card-body">
+                        <form action="{{ route('distributeMultipleLeadForm') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success mb-3">Distribute Selected Leads</button>
                         <table id="example1" class="table table-bordered table-striped">
                             @if (session('success'))
                                 <div class="alert alert-success text-center" role="alert">
@@ -32,6 +35,7 @@
                             @endif
                             <thead>
                                 <tr>
+                                    <th>Select</th>
                                     <th>ID</th>
                                     <th>CUSTOMER REGISTRATION DATE</th>
                                     <th>CUSTOMER NAME</th>
@@ -49,6 +53,7 @@
                             <tbody>
                                 @foreach ($customers as $index => $customer)
                                     <tr>
+                                        <td><input type="checkbox" name="customer_ids[]" value="{{ $customer->id }}" class="lead-checkbox"></td>
                                         <td> {{ $index + 1 }} </td>
                                         <td>
                                             @if ($customer->regitr_date)
@@ -89,6 +94,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </form>
                     </div>
                 </div>
                 <div>

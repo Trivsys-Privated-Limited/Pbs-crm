@@ -310,6 +310,8 @@ class dashboardController extends Controller
         return view('admin.sale_table', compact('customers'));
     }
 
+    /// Start New Single sale Distribute ///
+
     public function distributeSingleSaleForm(string $id)
     {
         $oldcustomer = Customer::with('user')->find($id);
@@ -341,8 +343,98 @@ class dashboardController extends Controller
         }
         $customer->save();
 
-        return redirect()->back()->with(['success' => 'Sale Distributed Successfully']);
+        // return redirect()->back()->with(['success' => 'Sale Distributed Successfully']);
+        return redirect()->route('viewAgentSaleTable')->with('success', 'Sale Distributed Successfully');
     }
+
+    /// End New Single sale Distribute ///
+
+    /// Start New Multiple Sale Distribute ///
+
+public function distributeMultipleSaleForm(Request $request)
+    {
+        // Agar page GET request se load ho raha hai (jaise validation fail hone par reload)
+        // toh hum session se customer_ids nikalenge, warna request se.
+        $customer_ids = $request->customer_ids;
+
+        if (!$customer_ids && session()->has('old_customer_ids')) {
+            $customer_ids = session()->get('old_customer_ids');
+        }
+
+        // Agar dono jagah se IDs nahi milin (yani user direct URL enter kar ke aya hai)
+        if (!$customer_ids) {
+            return redirect()->route('viewAgentSaleTable')->with('error', 'Please select at least one sale to distribute.');
+        }
+
+        // IDs ko session mein save kar lein taake validation fail hone par bhi mehfooz rahein
+        session()->flash('old_customer_ids', $customer_ids);
+
+        $selected_customers = collect();
+        
+        foreach($customer_ids as $id) {
+            $customer = Customer::with('user')->find($id);
+            if(!$customer) {
+                $customer = OldCustomer::with('user')->find($id);
+            }
+            if($customer) {
+                $selected_customers->push($customer);
+            }
+        }
+
+        $agents = User::where('role', 'user')->get();
+
+        return view('admin.dis_multiple_sale', compact(['agents', 'selected_customers']));
+    }
+
+    public function saveMultipleSaleDistribution(Request $request)
+    {
+        // 1. Validation 
+        $request->validate([
+            'customer_ids' => 'required|array|min:1',
+            'agent' => 'required|exists:users,id',
+        ], [
+            'agent.required' => 'Please select an agent first.',
+            'customer_ids.required' => 'Please select at least one sale to distribute.'
+        ]);
+
+        $newAgent = User::find($request->agent);
+
+        // 2. Customers aur OldCustomers ki IDs ko alag alag array mein store karein
+        $customerIds = [];
+        $oldCustomerIds = [];
+
+        foreach ($request->customer_ids as $id) {
+            // Check karein ke yeh id `customers` table ki hai ya `old_customers` table ki
+            if (Customer::find($id)) {
+                $customerIds[] = $id;
+            } elseif (OldCustomer::find($id)) {
+                $oldCustomerIds[] = $id;
+            }
+        }
+
+        // 3. New Customers (Customer Model) ko update karein
+        if (!empty($customerIds)) {
+            Customer::whereIn('id', $customerIds)->update([
+                'a_name' => $newAgent->id,
+                'user_name' => $newAgent->name
+            ]);
+        }
+
+        // 4. Old Customers (OldCustomer Model) ko update karein
+        if (!empty($oldCustomerIds)) {
+            OldCustomer::whereIn('id', $oldCustomerIds)->update([
+                'agent' => $newAgent->id,
+                'agent_name' => $newAgent->name
+            ]);
+        }
+
+        // Flash session ko clear karein
+        session()->forget('old_customer_ids');
+
+        return redirect()->route('viewAgentSaleTable')->with('success', 'Multiple Sales successfully distributed to the selected agent.');
+    }
+
+    /// End New Multiple Sale Distribute ///
 
     public function cutomerUPdateSaleDetailFormVIew(string $id)
     {
@@ -462,6 +554,8 @@ class dashboardController extends Controller
         return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfuly']);
     }
 
+    /// Start Single Lead Distribute Code ///
+
     public function distributeSingleLeadForm(string $id)
     {
         $customer = Customer::with('user')->find($id);
@@ -484,6 +578,44 @@ class dashboardController extends Controller
 
         return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Lead Distributed Successfully']);
     }
+
+    /// End Single Lead Distribute Code ///
+
+    /// start Multiple lead distribute code ///
+
+    public function distributeMultipleLeadForm(Request $request)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array|min:1',
+        ], [
+            'customer_ids.required' => 'Please select at least one lead to distribute.',
+        ]);
+
+        $selected_customers = Customer::with('user')->whereIn('id', $request->customer_ids)->get();
+        // Sirf user role wale agents ko fetch karna
+        $agents = User::where('role', 'user')->get();
+
+        return view('admin.dis_multiple_lead', compact(['agents', 'selected_customers']));
+    }
+
+    public function saveMultipleLeadDistribution(Request $request)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array|min:1',
+            'agent' => 'required|exists:users,id',
+        ], [
+            'agent.required' => 'Please select an agent first.',
+        ]);
+
+        Customer::whereIn('id', $request->customer_ids)->update([
+            'a_name' => $request->agent
+        ]);
+
+        // Yeh 'viewAgentLeadlTable' aapki dashboard route se liya gaya hai jo table dikhata hai
+        return redirect()->route('viewAgentLeadlTable')->with('success', 'Leads successfully distributed to the selected agent.');
+    }
+
+    /// End Multiple lead distribute code ///
 
     public function cutomerUPdateDetailFormVIew(string $id)
     {
@@ -585,6 +717,8 @@ class dashboardController extends Controller
         return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfuly']);
     }
 
+    /// Start Single Trial Distribute Code ///
+
     public function distributeSingleTrialForm(string $id)
     {
         $customer = Customer::with('user')->find($id);
@@ -605,8 +739,52 @@ class dashboardController extends Controller
         $customer->user_name = $newAgent->name;
         $customer->save();
 
-        return redirect()->back()->with(['success' => 'Trial Distributed Successfully']);
+        //return redirect()->back()->with(['success' => 'Trial Distributed Successfully']);
+        return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfuly']);
     }
+
+    /// End Single Trial Distribute Code ///
+
+    /// Start Multiple Trial Distribute Code ///
+
+    public function distributeMultipleTrialForm(Request $request)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array|min:1',
+        ], [
+            'customer_ids.required' => 'Please select at least one trial to distribute.',
+        ]);
+
+        // Get selected customers
+        $selected_customers = Customer::with('user')->whereIn('id', $request->customer_ids)->get();
+        
+        // Get agents
+        $agents = User::where('role', 'user')->get();
+
+        return view('admin.dis_multiple_trial', compact(['agents', 'selected_customers']));
+    }
+
+    public function saveMultipleTrialDistribution(Request $request)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array|min:1',
+            'agent' => 'required|exists:users,id',
+        ], [
+            'agent.required' => 'Please select an agent first.',
+        ]);
+
+        $newAgent = User::find($request->agent);
+
+        // Update all selected trials with new agent ID and Name
+        Customer::whereIn('id', $request->customer_ids)->update([
+            'a_name' => $newAgent->id,
+            'user_name' => $newAgent->name
+        ]);
+
+        return redirect()->route('viewAgentTrialTable')->with('success', 'Multiple Trials successfully distributed to the selected agent.');
+    }
+
+    /// End Multiple Trial Distribute Code ///
 
     public function cutomerUPdateTrialDetailFormVIew(string $id)
     {

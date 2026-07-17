@@ -34,6 +34,50 @@
         <div class="flex place-items-center gap-6">
             {{-- <span class="font-bold text-white text-xl">{{ Auth::user()->name }} </span>
             <a href="{{ route('logout') }}" class="btn btn-light">Logout</a> --}}
+
+            {{--  Notification icon new Code Start --}}
+
+            <!-- 👇 NEW CODE: Notifications Bell Dropdown 👇 -->
+    <div class="relative w-max mx-auto me-2">
+        <button type="button" id="notificationToggle" class="relative p-2 text-white hover:text-gray-200 cursor-pointer outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            @if(Auth::user()->unreadNotifications->count() > 0)
+                <span class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                    {{ Auth::user()->unreadNotifications->count() }}
+                </span>
+            @endif
+        </button>
+
+        <div id="notificationMenu" class="absolute right-0 hidden shadow-lg bg-white py-2 z-[1000] w-80 rounded-lg max-h-96 overflow-auto border border-slate-200 mt-2">
+            <div class="px-4 py-2 border-b border-slate-100 flex justify-between place-items-center">
+                <span class="font-bold text-slate-700 text-sm">Notifications</span>
+                @if(Auth::user()->unreadNotifications->count() > 0)
+                    {{-- Yahan "Mark all read" aayega, jis mein $notification ki zaroorat nahi --}}
+                    <a href="{{ route('notifications.markAsRead') }}" class="text-xs text-blue-600 hover:underline">Mark all read</a>
+                @endif
+            </div>
+            <ul class="flex flex-col">
+                {{-- Loop yahan se shuru hota hai, $notification sirf iske andar kaam karega --}}
+                @forelse(Auth::user()->unreadNotifications as $notification)
+                    <li class="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                        {{-- Yahan single notification read wala naya route aayega --}}
+                        <a href="{{ route('notification.read', $notification->id) }}" class="block px-4 py-3 text-sm text-slate-600">
+                            {{ $notification->data['message'] }}
+                            <span class="block text-xs text-slate-400 mt-1">{{ $notification->created_at->diffForHumans() }}</span>
+                        </a>
+                    </li>
+                @empty
+                    <li class="px-4 py-3 text-sm text-slate-500 text-center">No new notifications</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+    <!-- 👆 Notifications Bell Dropdown End 👆 -->
+
+            {{--  Notification icon Code End Here   --}}
+
             <div class="relative w-max mx-auto">
                 <button type="button" id="dropdownToggle"
                     class="px-4 py-2 flex items-center bg-white rounded-lg text-slate-900 text-sm font-medium border border-slate-300 outline-none hover:bg-slate-100 cursor-pointer">
@@ -117,7 +161,7 @@
     </nav>
 
 
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', () => {
             let dropdownToggle = document.getElementById('dropdownToggle');
             let dropdownMenu = document.getElementById('dropdownMenu');
@@ -149,5 +193,61 @@
                 }
             });
         });
-    </script>
+    </script> --}}
+
+    {{-- Testing Code  Start Notification & Dropdown Profile --}}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let dropdownToggle = document.getElementById('dropdownToggle');
+        let dropdownMenu = document.getElementById('dropdownMenu');
+        
+        let notificationToggle = document.getElementById('notificationToggle');
+        let notificationMenu = document.getElementById('notificationMenu');
+
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('hidden');
+            dropdownMenu.classList.toggle('block');
+            hideNotifications(); // Hide notification if profile is clicked
+        }
+
+        function hideDropdown() {
+            dropdownMenu.classList.add('hidden');
+            dropdownMenu.classList.remove('block');
+        }
+
+        function toggleNotifications() {
+            notificationMenu.classList.toggle('hidden');
+            notificationMenu.classList.toggle('block');
+            hideDropdown(); // Hide profile if notification is clicked
+        }
+
+        function hideNotifications() {
+            notificationMenu.classList.add('hidden');
+            notificationMenu.classList.remove('block');
+        }
+
+        dropdownToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleDropdown();
+        });
+
+        notificationToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleNotifications();
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!dropdownMenu.contains(event.target) && event.target !== dropdownToggle) {
+                hideDropdown();
+            }
+            if (!notificationMenu.contains(event.target) && event.target !== notificationToggle) {
+                hideNotifications();
+            }
+        });
+    });
+</script>
+
+{{-- End Testing Code For Notification & Dropdown Profile  --}}
+
 @endsection

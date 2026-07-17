@@ -24,6 +24,14 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card-body">
+                        <!-- Naya Form Yahan Se Start -->
+                        <form action="{{ route('distributeMultipleSaleForm') }}" method="POST">
+                            @csrf
+                            
+                            <!-- Bulk Distribute Button -->
+                            <button type="submit" class="btn btn-success mb-3">
+                                <i class="fa-solid fa-share-nodes"></i> Distribute Selected Sales
+                            </button>
                         <table id="example1" class="table table-bordered table-striped">
                             @if (session('success'))
                                 <div class="alert alert-success text-center" role="alert">
@@ -32,6 +40,8 @@
                             @endif
                             <thead>
                                 <tr>
+                                    <!-- Naya Checkbox Header -->
+                                        <th><input type="checkbox" id="selectAll">Select</th>
                                     <th>ID</th>
                                     <th>CUSTOMER REGISTRATION DATE</th>
                                     <th>CUSTOMER NAME</th>
@@ -49,6 +59,8 @@
                             <tbody>
                                 @foreach ($customers as $index => $customer)
                                     <tr>
+                                        <!-- Row Checkbox -->
+                                            <td><input type="checkbox" name="customer_ids[]" value="{{ $customer->id }}" class="sale-checkbox"></td>
                                         <td> {{ $index + 1 }} </td>
                                         <td>
                                             @if ($customer->regitr_date)
@@ -95,6 +107,8 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </form>
+                        <!-- Naya Form Yahan Se End -->
                     </div>
                 </div>
                 <div>
@@ -102,11 +116,19 @@
             </div>
 
 
-            <script>
-                let fileByMonth = document.querySelector('#filterbyMonth');
-                let FilterMonthForm = document.querySelector('#filterbyMonthForm');
-                fileByMonth.addEventListener('change', () => {
-                    FilterMonthForm.submit();
-                });
-            </script>
+           <script>
+            let fileByMonth = document.querySelector('#filterbyMonth');
+            let FilterMonthForm = document.querySelector('#filterbyMonthForm');
+            fileByMonth.addEventListener('change', () => {
+                FilterMonthForm.submit();
+            });
+
+            // Select All Checkbox Script
+            document.getElementById('selectAll').onclick = function() {
+                var checkboxes = document.querySelectorAll('.sale-checkbox');
+                for (var checkbox of checkboxes) {
+                    checkbox.checked = this.checked;
+                }
+            }
+        </script>
         @endsection

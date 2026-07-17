@@ -23,6 +23,14 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card-body">
+                        <!-- Table se pehle form open karein -->
+                        <form action="{{ route('distributeMultipleTrialForm') }}" method="POST">
+                         @csrf
+    
+                        <!-- Button to submit multiple selection -->
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-warning">Distribute Selected Trials</button>
+                    </div>
                         <table id="example1" class="table table-bordered table-striped">
                             @if (session('success'))
                                 <div class="alert alert-success text-center" role="alert">
@@ -31,6 +39,7 @@
                             @endif
                             <thead>
                                 <tr>
+                                    <th>SELECT</th>
                                     <th>ID</th>
                                     <th>CUSTOMER REGISTRATION DATE</th>
                                     <th>CUSTOMER NAME</th>
@@ -48,6 +57,9 @@
                             <tbody>
                                 @foreach ($customers as $index => $customer)
                                     <tr>
+                                        <td>
+                                        <input type="checkbox" name="customer_ids[]" value="{{ $customer->id }}">
+                                        </td>
                                         <td> {{ $index + 1 }} </td>
                                         <td>
                                             @if ($customer->regitr_date)
@@ -98,6 +110,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </form>
                     </div>
                 </div>
                 <div>

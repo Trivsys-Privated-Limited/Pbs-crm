@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\help;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Notifications\HelpDeskNotification;
+use Illuminate\Support\Facades\Notification;
+
 class HelpController extends Controller
 {
     public function viewHelpForm()
@@ -36,6 +40,14 @@ class HelpController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+    /// ---- NEW CODE: Notify Support & Admins ----  ///
+    $supportStaff = User::whereIn('role', ['support', 'admin', 'sub_admin'])->get();
+    Notification::send($supportStaff, new HelpDeskNotification(
+        "New Help Request from {$req->customer_name}",
+        route('help.chat', $help->id)
+    ));
+    /// --------------   End Here Notify code ---------------------  ///
 
         return redirect()->route('help')->with(['success' => 'Help Request Submit Successfuly']);
     }
@@ -69,6 +81,18 @@ class HelpController extends Controller
         $help->status = trim($req->status);
         $help->save();
 
+        //// Start Status Notification logic Code ////
+    // User model se us banday ko nikalain jiski yeh request thi
+    $requestOwner = \App\Models\User::find($help->user_id); 
+    
+    if ($requestOwner) {
+        $requestOwner->notify(new \App\Notifications\HelpDeskNotification(
+            "Status Update: Your Help Request (Status is #{$help->id}) Now '{$help->status}'.",
+            route('viewHelpTable', $help->id)
+        ));
+    }
+    
+    //  End Status Notification Logic Code //
         return redirect()->back()->with(['success' => 'Status updated successfully!']);
     }
 
@@ -85,6 +109,8 @@ class HelpController extends Controller
 
         return view('front.help_chat', compact('help'));
     }
+
+    //////// Send Message New Original Code ////////
 
     public function sendMessage(Request $req, string $id)
     {
@@ -106,8 +132,30 @@ class HelpController extends Controller
             'message' => $req->message,
         ]);
 
+        // ---- NEW CODE: Notifications Logic Start here ---- //
+    if ($user->role === 'user') {
+        // Agar normal user message bheje toh support/admin ko batao
+        $supportStaff = User::whereIn('role', ['support', 'admin', 'sub_admin'])->get();
+        Notification::send($supportStaff, new HelpDeskNotification(
+            "New message on Request #{$help->id} from {$user->name}",
+            route('help.chat', $help->id)
+        ));
+    } else {
+        // Agar support/admin message bheje toh normal user ko batao
+        $requestOwner = User::find($help->user_id);
+        if ($requestOwner && $requestOwner->id !== $user->id) {
+            $requestOwner->notify(new HelpDeskNotification(
+                "New reply on your Request #{$help->id}",
+                route('help.chat', $help->id)
+            ));
+        }
+    }
+    // --------  New Code: Notification Logic  End Here  -------  //
+
         return redirect()->route('help.chat', $id)->with(['success' => 'Message sent.']);
     }
+
+    ////////// New Original Code End Here //////////
 
     public function viewResolvedHelpRequestsForSupport()
     {
