@@ -29,7 +29,7 @@ class HelpController extends Controller
 
         $email = $req->customer_email ?: 'No Email';
 
-        help::create([
+        $help = help::create([
             'c_name' => $req->customer_name,
             'c_number' => $req->customer_number,
             'c_email' => $email,
