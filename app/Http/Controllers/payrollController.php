@@ -56,7 +56,8 @@ class PayrollController extends Controller
             return back()->with('error', 'Employee not found');
         }
 
-        $basicSalary = (int) $employee->salary;
+        $basicSalary = $request->filled('manual_salary') ? (int) $request->manual_salary : (int) $employee->salary;
+        $manualDeduction = $request->filled('manual_deduction') ? (int) $request->manual_deduction : 0;
 
         $carbon   = Carbon::createFromFormat('Y-m', $month);
         $year     = $carbon->year;
@@ -92,7 +93,8 @@ class PayrollController extends Controller
              + $commission
              - $absentDeduction
              - $lateDeduction
-             - $advanceDeduction;
+             - $advanceDeduction
+             - $manualDeduction;
 
         payroll::create([
             'employee_id'       => $employeeId,
@@ -103,6 +105,7 @@ class PayrollController extends Controller
             'absent_deduction'  => $absentDeduction,
             'late_deduction'    => $lateDeduction,
             'advance_deduction' => $advanceDeduction,
+            'manual_deduction'  => $manualDeduction,
             'commission'        => $commission,
             'net_salary'        => $netSalary,
         ]);

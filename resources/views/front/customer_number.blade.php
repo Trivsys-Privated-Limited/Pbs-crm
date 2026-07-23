@@ -130,7 +130,7 @@
                 <td class="px-4 py-2 border border-gray-300">
                     ${customer.status === 'pending' ? 
                         `<input type="text" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400" 
-                                             placeholder="Enter Customer Name" name="customer_name" required>` : 
+                                             placeholder="Enter Customer Name" name="customer_name">` : 
                         `<span class="font-medium">${customer.customer_name || '-'}</span>`}
                 </td>
                 <td class="px-4 py-2 border border-gray-300">
@@ -208,7 +208,7 @@
                     const remarks = row.find('[name="remarks"]').val();
                     const price = row.find('[name="price"]').val();
 
-                    if (!customerName || !status || !remarks) {
+                    if (!status || !remarks) {
                         alert('Please fill all required fields!');
                         return;
                     }

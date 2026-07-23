@@ -167,6 +167,7 @@ class dashboardController extends Controller
                 // --- NEW SEARCH LOGIC (Separate & Independent) ---
         $searchResultsLeads = collect();
         $searchResultsSales = collect();
+        $searchResultsPendingSales = collect();
         $searchResultsTrials = collect();
         $searchResultsNumbers = collect();
 
@@ -210,6 +211,31 @@ class dashboardController extends Controller
 
             $searchResultsSales = $salesOld->merge($salesNew);
 
+            // 2.5 Pending Sales Search
+            $pendingSalesOld = \App\Models\customer::with('user')
+                ->where('status', 'pending')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            $pendingSalesNew = \App\Models\oldCustomer::with('user')
+                ->where('status', 'pending')
+                ->where(function($query) use ($search) {
+                    $query->where('customer_name', 'like', "%{$search}%")
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
+                })->get();
+
+            $searchResultsPendingSales = $pendingSalesOld->merge($pendingSalesNew);
+
             // 3. Trials Search
             $searchResultsTrials = \App\Models\customer::with('user')
                 ->where('status', 'trial')
@@ -247,6 +273,7 @@ class dashboardController extends Controller
             'leaveRequests',
             'searchResultsLeads',    // <-- NAYA ADD HUA
             'searchResultsSales',    // <-- NAYA ADD HUA
+            'searchResultsPendingSales', // <-- NAYA ADD HUA
             'searchResultsTrials',   // <-- NAYA ADD HUA
             'searchResultsNumbers'   // <-- NAYA ADD HUA
         ]));
@@ -335,9 +362,14 @@ class dashboardController extends Controller
         $newAgent = User::find($req->agent);
 
         if ($customer->getTable() == 'customers') {
+            // Previous agent ka fresh naam users table se lo (user_name pe rely mat karo)
+            $prevAgent = User::find($customer->a_name);
+            $customer->previous_agent_name = $prevAgent ? $prevAgent->name : ($customer->user_name ?? null);
             $customer->a_name = $newAgent->id;
             $customer->user_name = $newAgent->name;
         } else {
+            $prevAgent = User::find($customer->agent);
+            $customer->previous_agent_name = $prevAgent ? $prevAgent->name : null;
             $customer->agent = $newAgent->id;
             $customer->agent_name = $newAgent->name;
         }
@@ -414,18 +446,29 @@ public function distributeMultipleSaleForm(Request $request)
 
         // 3. New Customers (Customer Model) ko update karein
         if (!empty($customerIds)) {
-            Customer::whereIn('id', $customerIds)->update([
-                'a_name' => $newAgent->id,
-                'user_name' => $newAgent->name
-            ]);
+            // Pehle previous agent name save karo - fresh naam users table se lo
+            Customer::whereIn('id', $customerIds)->each(function ($cust) use ($newAgent) {
+                $prevAgent = User::find($cust->a_name);
+                $prevName = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
+                $cust->update([
+                    'previous_agent_name' => $prevName,
+                    'a_name' => $newAgent->id,
+                    'user_name' => $newAgent->name,
+                ]);
+            });
         }
 
         // 4. Old Customers (OldCustomer Model) ko update karein
         if (!empty($oldCustomerIds)) {
-            OldCustomer::whereIn('id', $oldCustomerIds)->update([
-                'agent' => $newAgent->id,
-                'agent_name' => $newAgent->name
-            ]);
+            OldCustomer::whereIn('id', $oldCustomerIds)->each(function ($cust) use ($newAgent) {
+                $prevAgent = User::find($cust->agent);
+                $prevName = $prevAgent ? $prevAgent->name : null;
+                $cust->update([
+                    'previous_agent_name' => $prevName,
+                    'agent' => $newAgent->id,
+                    'agent_name' => $newAgent->name,
+                ]);
+            });
         }
 
         // Flash session ko clear karein
@@ -572,9 +615,22 @@ public function distributeMultipleSaleForm(Request $request)
         $customer = Customer::find($id);
         $newAgent = User::find($req->agent);
 
+        // Save previous agent name before reassigning
+        $previousAgentName = $customer->user ? $customer->user->name : $customer->user_name;
+
         $customer->a_name = $newAgent->id;
         $customer->user_name = $newAgent->name;
+        $customer->previous_agent_name = $previousAgentName;
         $customer->save();
+
+        if ($newAgent) {
+            $message = "New lead assigned to you:\n";
+            $message .= "• Name: {$customer->customer_name}";
+            if (!empty($customer->customer_number)) {
+                $message .= " | Number: {$customer->customer_number}";
+            }
+            $newAgent->notify(new \App\Notifications\LeadDistributedNotification($message));
+        }
 
         return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Lead Distributed Successfully']);
     }
@@ -607,9 +663,30 @@ public function distributeMultipleSaleForm(Request $request)
             'agent.required' => 'Please select an agent first.',
         ]);
 
-        Customer::whereIn('id', $request->customer_ids)->update([
-            'a_name' => $request->agent
-        ]);
+        // Get customer names + their previous agent before updating
+        $customersToUpdate = Customer::with('user')->whereIn('id', $request->customer_ids)->get();
+
+        foreach ($customersToUpdate as $c) {
+            $prevName = $c->user ? $c->user->name : $c->user_name;
+            $c->previous_agent_name = $prevName;
+            $c->a_name = $request->agent;
+            $c->save();
+        }
+
+        $agent = User::find($request->agent);
+        if ($agent) {
+            $customers = Customer::whereIn('id', $request->customer_ids)->get();
+            $count = $customers->count();
+            $namesList = $customers->map(function($c) {
+                $entry = "• {$c->customer_name}";
+                if (!empty($c->customer_number)) {
+                    $entry .= " | {$c->customer_number}";
+                }
+                return $entry;
+            })->implode('\n');
+            $message = "$count new lead(s) assigned to you:\n" . $namesList;
+            $agent->notify(new \App\Notifications\LeadDistributedNotification($message));
+        }
 
         // Yeh 'viewAgentLeadlTable' aapki dashboard route se liya gaya hai jo table dikhata hai
         return redirect()->route('viewAgentLeadlTable')->with('success', 'Leads successfully distributed to the selected agent.');
@@ -735,6 +812,10 @@ public function distributeMultipleSaleForm(Request $request)
         $customer = Customer::find($id);
         $newAgent = User::find($req->agent);
 
+        // Previous agent ka fresh naam users table se lo
+        $prevAgent = User::find($customer->a_name);
+        $customer->previous_agent_name = $prevAgent ? $prevAgent->name : ($customer->user_name ?? null);
+
         $customer->a_name = $newAgent->id;
         $customer->user_name = $newAgent->name;
         $customer->save();
@@ -776,10 +857,15 @@ public function distributeMultipleSaleForm(Request $request)
         $newAgent = User::find($request->agent);
 
         // Update all selected trials with new agent ID and Name
-        Customer::whereIn('id', $request->customer_ids)->update([
-            'a_name' => $newAgent->id,
-            'user_name' => $newAgent->name
-        ]);
+        Customer::whereIn('id', $request->customer_ids)->each(function ($cust) use ($newAgent) {
+            $prevAgent = User::find($cust->a_name);
+            $prevName = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
+            $cust->update([
+                'previous_agent_name' => $prevName,
+                'a_name' => $newAgent->id,
+                'user_name' => $newAgent->name,
+            ]);
+        });
 
         return redirect()->route('viewAgentTrialTable')->with('success', 'Multiple Trials successfully distributed to the selected agent.');
     }

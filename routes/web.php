@@ -130,6 +130,7 @@ Route::controller(EmployeController::class)->middleware(validUser::class)->middl
     Route::get('/dashboard/{id}/view-employee', 'show')->name('employee.show');
     Route::get('/dashboard/{id}/edit-employee', 'edit')->name('employee.edit');
     Route::post('/dashboard/{id}/update-employee', 'update')->name('employee.update');
+    Route::get('/dashboard/{id}/delete-employee', 'destroy')->name('employee.destroy');
 });
 
 Route::controller(AttendanceController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
@@ -255,7 +256,8 @@ Route::get('/notifications/{id}/read', function($id) {
     $notification = Illuminate\Support\Facades\Auth::user()->notifications()->find($id);
     if($notification) {
         $notification->markAsRead(); // Notification ko read mark kiya
-        return redirect($notification->data['url']); // User ko asal page par bhej diya
+        $url = $notification->data['url'] ?? route('dashboard'); // fallback to dashboard
+        return redirect($url);
     }
-    return redirect()->back();
+    return redirect()->route('dashboard');
 })->name('notification.read')->middleware(App\Http\Middleware\validUser::class);

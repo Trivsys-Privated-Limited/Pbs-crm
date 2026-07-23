@@ -14,6 +14,7 @@ class oldCustomer extends Model
         'status',
         'a_name',
         'expiry_date',
+        'previous_agent_name',
     ];
 
     public function user()

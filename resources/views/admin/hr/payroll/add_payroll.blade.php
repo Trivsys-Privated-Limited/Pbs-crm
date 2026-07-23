@@ -63,6 +63,18 @@
                                         </select>
                                     </div>
 
+                                    <div class="col-6 mt-2">
+                                        <label for="manualSalary">Manual Salary (Optional)</label>
+                                        <input class="form-control" type="number" name="manual_salary" id="manualSalary"
+                                            placeholder="Leave empty to use default salary">
+                                    </div>
+
+                                    <div class="col-6 mt-2">
+                                        <label for="manualDeduction">Manual Deduction (Optional)</label>
+                                        <input class="form-control" type="number" name="manual_deduction" id="manualDeduction"
+                                            placeholder="Enter manual deduction amount">
+                                    </div>
+
 
                                     <!-- /.card-body -->
                                     <div class="card-footer">

@@ -91,9 +91,15 @@
                                 <td class="description-cell">Advance Payment Recovery</td>
                                 <td class="amount-cell negative">{{ number_format($payroll->advance_deduction, 2) }}</td>
                             </tr>
+                            @if($payroll->manual_deduction > 0)
+                            <tr>
+                                <td class="description-cell">Custom Deduction</td>
+                                <td class="amount-cell negative">{{ number_format($payroll->manual_deduction, 2) }}</td>
+                            </tr>
+                            @endif
                             <tr class="subtotal-row">
                                 <td class="description-cell"><strong>Total Deductions</strong></td>
-                                <td class="amount-cell"><strong>{{ number_format($payroll->absent_deduction + $payroll->late_deduction + $payroll->advance_deduction, 2) }}</strong></td>
+                                <td class="amount-cell"><strong>{{ number_format($payroll->absent_deduction + $payroll->late_deduction + $payroll->advance_deduction + $payroll->manual_deduction, 2) }}</strong></td>
                             </tr>
                         </tbody>
                         <tfoot>

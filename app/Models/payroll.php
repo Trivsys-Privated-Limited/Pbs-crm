@@ -14,6 +14,7 @@ class payroll extends Model
         'absent_deduction',
         'late_deduction',
         'advance_deduction',
+        'manual_deduction',
         'commission',
         'net_salary',
     ];

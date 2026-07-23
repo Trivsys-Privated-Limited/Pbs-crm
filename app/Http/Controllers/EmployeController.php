@@ -231,6 +231,29 @@ class EmployeController extends Controller
         return redirect()->route('employee.index')->with('success', 'Employee Updated Successfully');
     }
 
+    public function destroy($id)
+    {
+        $employee = employe::findOrFail($id);
+        
+        // Optionally, delete files if they exist
+        if ($employee->offer_letter && file_exists(public_path($employee->offer_letter))) {
+            unlink(public_path($employee->offer_letter));
+        }
+        if ($employee->resume && file_exists(public_path($employee->resume))) {
+            unlink(public_path($employee->resume));
+        }
+        if ($employee->profile_img && file_exists(public_path($employee->profile_img))) {
+            unlink(public_path($employee->profile_img));
+        }
+        if ($employee->cnic && file_exists(public_path($employee->cnic))) {
+            unlink(public_path($employee->cnic));
+        }
+
+        $employee->delete();
+
+        return redirect()->route('employee.index')->with('success', 'Employee Deleted Successfully');
+    }
+
     public function viewEmployeeProfile()
     {
         $employee = employe::where('employe_id', auth()->user()->id)

@@ -159,6 +159,9 @@
                             <a class="nav-link" id="sales-tab" data-toggle="tab" href="#sales-result" role="tab">Sales ({{ $searchResultsSales->count() }})</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="pending-sales-tab" data-toggle="tab" href="#pending-sales-result" role="tab">Pending Sales ({{ $searchResultsPendingSales->count() }})</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="trials-tab" data-toggle="tab" href="#trials-result" role="tab">Trials ({{ $searchResultsTrials->count() }})</a>
                         </li>
                         <li class="nav-item">
@@ -219,6 +222,36 @@
                                                 <td>{{ $saleData->customer_email }}</td>
                                                 <td>${{ $saleData->price }}</td>
                                                 <td>{{ $saleData->user->name ?? 'N/A' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+
+                        <!-- PENDING SALES TAB -->
+                        <div class="tab-pane fade" id="pending-sales-result" role="tabpanel">
+                            @if($searchResultsPendingSales->isEmpty())
+                                <div class="alert alert-light text-muted">No Pending Sales records matched your search.</div>
+                            @else
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Number</th>
+                                            <th>Email</th>
+                                            <th>Price</th>
+                                            <th>Agent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($searchResultsPendingSales as $pendingSaleData)
+                                            <tr>
+                                                <td>{{ $pendingSaleData->customer_name }}</td>
+                                                <td>{{ $pendingSaleData->customer_number }}</td>
+                                                <td>{{ $pendingSaleData->customer_email }}</td>
+                                                <td>${{ $pendingSaleData->price }}</td>
+                                                <td>{{ $pendingSaleData->user->name ?? 'N/A' }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

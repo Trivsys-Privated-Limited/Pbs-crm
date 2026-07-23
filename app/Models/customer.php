@@ -14,6 +14,7 @@ class customer extends Model
         'remarks',
         'status',
         'a_name',
+        'previous_agent_name',
         'regitr_date',
         'expiry_date',
         'make_address'

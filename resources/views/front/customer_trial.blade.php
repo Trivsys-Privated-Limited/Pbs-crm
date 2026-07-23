@@ -26,6 +26,7 @@
                     <th class="px-4 py-2 border border-gray-300">STATUS</th>
                     <th class="px-4 py-2 border border-gray-300 hidden sm:table-cell">CUSTOMER REGISTRATION DATE</th>
                     <th class="px-4 py-2 border border-gray-300">AGENT NAME</th>
+                    <th class="px-4 py-2 border border-gray-300">PREV. AGENT</th>
                     <th class="px-4 py-2 border border-gray-300">Action</th>
                 </tr>
             </thead>
@@ -49,6 +50,13 @@
                             @endif
                         </td>
                         <td class="px-4 py-2 border border-gray-300 customer">{{ $customer['user']->name }}</td>
+                        <td class="px-4 py-2 border border-gray-300 customer">
+                            @if ($customer->previous_agent_name)
+                                <span class="text-orange-600 font-semibold">{{ $customer->previous_agent_name }}</span>
+                            @else
+                                <span class="text-gray-400 text-sm">—</span>
+                            @endif
+                        </td>
                         @if ($customer->status === 'lead')
                             <form action="{{ route('customerStatus', $customer->id) }}" method="POST">
                                 @csrf

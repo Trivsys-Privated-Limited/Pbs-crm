@@ -38,6 +38,7 @@
                     <th class="px-4 py-2 border border-gray-300">STATUS</th>
                     <th class="px-4 py-2 border border-gray-300 hidden sm:table-cell">CUSTOMER REGISTRATION DATE</th>
                     <th class="px-4 py-2 border border-gray-300 hidden md:table-cell">AGENT NAME</th>
+                    <th class="px-4 py-2 border border-gray-300 hidden md:table-cell">PREV. AGENT</th>
                     <th class="px-4 py-2 border border-gray-300 hidden md:table-cell">RENEWAL</th>
                     <th class="px-4 py-2 border border-gray-300 hidden md:table-cell">ACTION</th>
                 </tr>
@@ -66,6 +67,13 @@
                         <td class="px-4 py-2 border border-gray-300 customer hidden md:table-cell">
                             {{ $customer['user']->name }}</td>
                         <td class="px-4 py-2 border border-gray-300 customer hidden md:table-cell">
+                            @if ($customer->previous_agent_name)
+                                <span class="text-orange-600 font-semibold">{{ $customer->previous_agent_name }}</span>
+                            @else
+                                <span class="text-gray-400 text-sm">—</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-2 border border-gray-300 customer hidden md:table-cell">
                             @if ($customer->regitr_date)
                                 {{ \Carbon\Carbon::parse($customer->expiry_date)->format('d M, Y') }}
                             @else
@@ -83,7 +91,7 @@
 
                 @if ($customers->isEmpty())
                     <tr>
-                        <td colspan="10" class="text-center">No Sale Record Found</td>
+                        <td colspan="11" class="text-center">No Sale Record Found</td>
                     </tr>
                 @endif
             </tbody>

@@ -52,7 +52,10 @@
                                         <td>PKR {{ number_format($employee->salary) }}</td>
                                         <td>$ {{ number_format($employee->target) }}</td>
                                         <td>
-                                            <a href="{{route('employee.show',$employee->id)}}" class="btn btn-primary btn-sm">View Profile</a>
+                                            <div class="d-flex justify-content-center" style="gap: 5px;">
+                                                <a href="{{route('employee.show',$employee->id)}}" class="btn btn-primary btn-sm">View Profile</a>
+                                                <a href="{{route('employee.destroy',$employee->id)}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this employee record?')">Delete</a>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
