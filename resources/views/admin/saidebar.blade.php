@@ -114,6 +114,64 @@
                                 </p>
                             </a>
                         </li>
+                        <!-- start New Links Add For Regional wise numbers -->
+
+                        @if (Auth::user()->role === 'admin')
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fa-solid fa-phone"></i>
+            <p>
+                Regional Numbers
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <!-- US/CA (+1) -->
+            <li class="nav-item">
+                <a href="{{ route('viewNumbersByRegion', 'us') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>All US Numbers</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('distributeNumbersFormByRegion', 'us') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon text-success"></i>
+                    <p>Distribute US Numbers</p>
+                </a>
+            </li>
+            
+            <!-- UK (+44) -->
+            <li class="nav-item mt-2">
+                <a href="{{ route('viewNumbersByRegion', 'uk') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>All UK Numbers</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('distributeNumbersFormByRegion', 'uk') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon text-success"></i>
+                    <p>Distribute UK Numbers</p>
+                </a>
+            </li>
+
+            <!-- AUS (+61) -->
+            <li class="nav-item mt-2">
+                <a href="{{ route('viewNumbersByRegion', 'aus') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>All AUS Numbers</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('distributeNumbersFormByRegion', 'aus') }}" class="nav-link">
+                    <i class="far fa-circle nav-icon text-success"></i>
+                    <p>Distribute AUS Numbers</p>
+                </a>
+            </li>
+        </ul>
+    </li>
+@endif
+
+                        <!-- End New links of Regional wise numbers -->
                         <li class="nav-item">
                             <a href="{{ route('viewOldNumber') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-phone"></i>

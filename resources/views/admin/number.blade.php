@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="content-wrapper">
-        <div class="content-header">
+        {{-- <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-2">
@@ -26,7 +26,48 @@
                     </div>
                 </div>
             </div>
+        </div> --}}
+
+        {{-- NEW CODE START FOR BUTTON DYNAMIC --}}
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <!-- Dynamic Heading -->
+                    <div class="col-sm-3">
+                        <h1 class="m-0 d-inline">{{ isset($region) ? strtoupper($region) . ' All Numbers' : 'All Numbers' }}</h1>
+                    </div>
+                    
+                    @if(!isset($region))
+                        <!-- Add New Button (Sirf All Numbers page par show hoga) -->
+                        <div class="col-sm-3">
+                            <h1 class="m-0 d-inline">
+                                <a href="{{ route('viewAddNumbersForm') }}" class="btn btn-primary">Add New</a>
+                            </h1>
+                        </div>
+                    @else
+                        <!-- Dynamic Distribute Button (Sirf US/UK/AUS pages par show hoga) -->
+                        <div class="col-sm-4">
+                            <h1 class="m-0 d-inline">
+                                <a href="{{ route('distributeNumbersFormByRegion', $region) }}" class="btn btn-primary">
+                                    Distribute {{ strtoupper($region) }}
+                                </a>
+                            </h1>
+                        </div>
+                    @endif
+                    
+                    <!-- Dynamic Breadcrumb -->
+                    <div class="col-sm-5">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">DashBord</a></li>
+                            <li class="breadcrumb-item active">{{ isset($region) ? strtoupper($region) . ' Numbers' : 'All Numbers' }}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
         </div>
+        {{-- End New Code For Button Dynamic --}}
+
         <div class='container-fluid'>
             <div class="row">
                 <div class="col-md-12">

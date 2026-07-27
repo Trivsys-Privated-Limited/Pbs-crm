@@ -578,6 +578,8 @@ public function distributeMultipleSaleForm(Request $request)
         return view('admin.dis_lead', compact(['agentName', 'agentID']));
     }
 
+    //// old logic for all lead Distribute without prev_agent name show ////
+    /*
     public function updateLeadAgent(Request $req, string $id)
     {
         $OldLeadAgent = customer::where('status', 'lead')->where('a_name', $id)->take($req->number)->get();
@@ -596,6 +598,39 @@ public function distributeMultipleSaleForm(Request $request)
         }
         return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfuly']);
     }
+        */
+
+    /// New logic for All Lead Distrubute With prev_agent name //////
+
+    public function updateLeadAgent(Request $req, string $id)
+{
+    // Old Agent se $req->number ke mutabiq leads fetch karein
+    $OldLeadAgent = Customer::where('status', 'lead')
+                            ->where('a_name', $id)
+                            ->take($req->number)
+                            ->get();
+
+    // Reassignment se pehle purane agent ka fresh name fetch kar lein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
+
+    // Target Agent ki details fetch karein
+    $newAgent = User::find($req->agent);
+
+    if ($newAgent && $OldLeadAgent->isNotEmpty()) {
+        foreach ($OldLeadAgent as $lead) {
+            // Reassign karne se pehle purane agent ka naam save karein
+            $lead->previous_agent_name = $prevAgentName ?? ($lead->user_name ?? null);
+            $lead->a_name = $newAgent->id;
+            $lead->user_name = $newAgent->name;
+            $lead->save();
+        }
+    }
+
+    return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfully']);
+}
+
+    /// End Here //////
 
     /// Start Single Lead Distribute Code ///
 
@@ -775,6 +810,8 @@ public function distributeMultipleSaleForm(Request $request)
         return view('admin.dis_trial', compact(['agentName', 'agentID']));
     }
 
+    /// Old Trial Distribute Code without prev_agent_name show  ///
+    /*
     public function updateTrialAgent(Request $req, string $id)
     {
         $OldLeadAgent = customer::where('status', 'trial')->where('a_name', $id)->take($req->number)->get();
@@ -793,6 +830,44 @@ public function distributeMultipleSaleForm(Request $request)
         }
         return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfuly']);
     }
+        */
+    
+    /// End Here trial_distribute old logic ///
+
+    /// Add New Logic Trial Distribute With prev_agent_name show ////
+
+public function updateTrialAgent(Request $req, string $id)
+{
+    // Purane Agent aur Target Agent ko Users table se fetch karein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
+
+    $newAgent = User::find($req->agent);
+
+    // Purane Agent se requested count ($req->number) ke mutabiq trials fetch karein
+    $OldLeadAgent = Customer::where('status', 'trial')
+                            ->where('a_name', $id)
+                            ->take($req->number)
+                            ->get();
+
+    if ($newAgent && $OldLeadAgent->isNotEmpty()) {
+        foreach ($OldLeadAgent as $oldAgent) {
+            // Transfer se pehle purane agent ka naam save karein
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
+            
+            // Naye agent ki details update karein
+            $oldAgent->a_name    = $newAgent->id;
+            $oldAgent->user_name = $newAgent->name;
+
+            $oldAgent->save();
+        }
+    }
+
+    return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfully']);
+}
+
+
+    /// End Here New Logic Trial Distribute code  ///
 
     /// Start Single Trial Distribute Code ///
 
@@ -1066,7 +1141,8 @@ public function distributeMultipleSaleForm(Request $request)
         return view('admin.add_number');
     }
 
-    public function storeNumbers(Request $req)
+    //////// New Code logic For +1 +44 +61 Region Number allow ////////
+    /* public function storeNumbers(Request $req)
     {
         $customerNumberArray = preg_split('/[,\r\n]+|\s{2,}/', $req->customerNumber);
 
@@ -1108,7 +1184,116 @@ public function distributeMultipleSaleForm(Request $request)
 
         return redirect()->route('viewNumbersTable')
             ->with(['success' => 'New numbers added successfully']);
+    } */
+
+     ////////// New Code For +1 +44 +61 Number Add Logic Start Here ////////
+
+   /*  public function storeNumbers(Request $req)
+    {
+        $customerNumberArray = preg_split('/[,\r\n]+|\s{2,}/', $req->customerNumber);
+
+        $customerNumberArray = array_map('trim', $customerNumberArray);
+        $customerNumberArray = array_filter($customerNumberArray);
+        $customerNumberArray = array_unique($customerNumberArray);
+
+        $customerNumberArray = array_map(function ($num) {
+            $num = preg_replace('/[^0-9+]/', '', $num);
+
+            // Sirf +1, +44, aur +61 ko allow karain aur prefix remove kiye bina save karain
+            if (str_starts_with($num, '+1') || str_starts_with($num, '+44') || str_starts_with($num, '+61')) {
+                return $num;
+            }
+
+            // Agar user bina '+' k add kary tou autodetect kar k '+' add kar dain (Optional safety)
+            if (str_starts_with($num, '1') && strlen($num) == 11) { return '+' . $num; }
+            if (str_starts_with($num, '44') && strlen($num) >= 12) { return '+' . $num; }
+            if (str_starts_with($num, '61') && strlen($num) >= 11) { return '+' . $num; }
+
+            // Iske ilawa koi number store nahi hoga
+            return null;
+        }, $customerNumberArray);
+
+        $customerNumberArray = array_filter($customerNumberArray);
+
+        $existingNumbers = array_merge(
+            old_number::whereIn('number', $customerNumberArray)->pluck('number')->toArray(),
+            client_number::whereIn('number', $customerNumberArray)->pluck('number')->toArray(),
+            customerNumber::whereIn('customer_number', $customerNumberArray)->pluck('customer_number')->toArray()
+        );
+
+        $newNumbers = array_diff($customerNumberArray, $existingNumbers);
+
+        if (empty($newNumbers)) {
+            return redirect()->route('viewNumbersTable')
+                ->with(['error' => 'All numbers already exist in the records or invalid format.']);
+        }
+
+        foreach ($newNumbers as $number) {
+            client_number::create([
+                'number' => $number,
+                'date'   => now(),
+            ]);
+        }
+
+        return redirect()->route('viewNumbersTable')
+            ->with(['success' => 'New specific numbers added successfully']);
+    } */
+
+    public function storeNumbers(Request $req)
+    {
+        $customerNumberArray = preg_split('/[,\r\n]+|\s{2,}/', $req->customerNumber);
+        $customerNumberArray = array_map('trim', $customerNumberArray);
+        $customerNumberArray = array_filter($customerNumberArray);
+        $customerNumberArray = array_unique($customerNumberArray);
+
+        // Nayi array jismein stripped_number as Key aur region as Value hogi
+        $validNumbersMap = [];
+
+        foreach ($customerNumberArray as $num) {
+            // Sirf digits aur '+' ko allow karna
+            $cleanNum = preg_replace('/[^0-9+]/', '', $num);
+
+            if (str_starts_with($cleanNum, '+1')) {
+                $validNumbersMap[substr($cleanNum, 2)] = 'us';
+            } elseif (str_starts_with($cleanNum, '+44')) {
+                $validNumbersMap[substr($cleanNum, 3)] = 'uk';
+            } elseif (str_starts_with($cleanNum, '+61')) {
+                $validNumbersMap[substr($cleanNum, 3)] = 'aus';
+            }
+        }
+
+        // Sirf clean kiye hue numbers ki list database check k liye
+        $strippedNumbersList = array_keys($validNumbersMap);
+
+        // Database Check
+        $existingNumbers = array_merge(
+            old_number::whereIn('number', $strippedNumbersList)->pluck('number')->toArray(),
+            client_number::whereIn('number', $strippedNumbersList)->pluck('number')->toArray(),
+            customerNumber::whereIn('customer_number', $strippedNumbersList)->pluck('customer_number')->toArray()
+        );
+
+        // Jo numbers database me nahi hain
+        $newNumbers = array_diff($strippedNumbersList, $existingNumbers);
+
+        if (empty($newNumbers)) {
+            return redirect()->route('viewNumbersTable')
+                ->with(['error' => 'All numbers already exist in the records or invalid format.']);
+        }
+
+        // Database me save karna (Number aur Region dono)
+        foreach ($newNumbers as $number) {
+            client_number::create([
+                'number' => $number,
+                'region' => $validNumbersMap[$number], // Region humari map array se aayega
+                'date'   => now(),
+            ]);
+        }
+
+        return redirect()->route('viewNumbersTable')
+            ->with(['success' => 'New specific numbers added successfully']);
     }
+
+     ///////// End Region Number +1 +44 +61 Add Logic /////////////////
 
     public function storeCustomerNumbers(Request $req)
     {
@@ -1183,6 +1368,8 @@ public function distributeMultipleSaleForm(Request $request)
         return view('admin.dis_sale', compact(['agentName', 'agentID']));
     }
 
+    /// Old Logic for Sale Distribute Without Prev_agent_name Show ///
+  /*  
     public function updateSaleAgent(Request $req, string $id)
     {
         $CustomerSaleAgent    = customer::where('status', 'sale')->where('a_name', $id)->get();
@@ -1208,6 +1395,55 @@ public function distributeMultipleSaleForm(Request $request)
 
         return redirect()->route('viewAgentSaleTable')->with(['success' => 'Distribute Sale Successfully']);
     }
+     
+    */
+
+    /// End Here Old Logic Here ///
+
+    /// New Logic For Sale Distribute with prev_agent_name Show ///
+
+    public function updateSaleAgent(Request $req, string $id)
+{
+    // 1. Purane Agent ka name User table se fetch karein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
+
+    // 2. Naye Target Agent ko User table se fetch karein
+    $newAgent = User::find($req->agent);
+
+    if ($newAgent) {
+        // 3. Customer table se $req->number ke mutabiq sales fetch karein
+        $CustomerSaleAgent = Customer::where('status', 'sale')
+                                     ->where('a_name', $id)
+                                     ->take($req->number)
+                                     ->get();
+
+        foreach ($CustomerSaleAgent as $oldAgent) {
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
+            $oldAgent->a_name              = $newAgent->id;
+            $oldAgent->user_name           = $newAgent->name;
+            $oldAgent->save();
+        }
+
+        // 4. OldCustomer table se bhi $req->number ke mutabiq sales fetch karein
+        $oldCustomerSaleAgent = OldCustomer::where('status', 'sale')
+                                           ->where('agent', $id)
+                                           ->take($req->number)
+                                           ->get();
+
+        foreach ($oldCustomerSaleAgent as $oldAgent) {
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->agent_name ?? null);
+            $oldAgent->agent               = $newAgent->id;
+            $oldAgent->agent_name          = $newAgent->name;
+            $oldAgent->save();
+        }
+    }
+
+    return redirect()->route('viewAgentSaleTable')->with(['success' => 'Distribute Sale Successfully']);
+}
+    
+    
+    /// End Here New Logic ///
 
     public function filterSaleByDate(Request $req)
     {
@@ -1389,6 +1625,69 @@ public function distributeMultipleSaleForm(Request $request)
 
     }
 
-   
+
+    ////// Star region wise work show //// 
+    // Helper function ki ab zaroorat nahi hai, aap getRegionPrefix($region) ko delete kar sakte hain.
+
+    // Har region k numbers show karny k liye
+    public function viewNumbersByRegion($region)
+    {
+        // Ab hum direct 'region' column check kar rahy hain
+        $numbers = client_number::where('region', $region)->get();
+        return view('admin.number', compact('numbers', 'region'));
+    }
+
+    // Har region ki distribution ka form open karny k liye
+    public function distributeNumbersFormByRegion($region)
+    {
+        $agentName = User::select('name', 'id')->where('role', 'user')->get();
+        
+        // LIKE query ki jagah where('region', $region) use ho raha hy
+        $allClientNumbersCount = client_number::where('region', $region)->count();
+
+        return view('admin.add_customer_number', compact(['agentName', 'allClientNumbersCount', 'region']));
+    }
+
+    //////////// Har region ki distribution ko save karny k liye //////////// 
+    public function storeDistributedNumbersByRegion(Request $req, $region)
+    {
+        $req->validate([
+            'agent'  => 'required',
+            'date'   => 'required|date',
+            'number' => 'required|integer|min:1',
+        ]);
+
+        $numberCount = $req->input('number');
+
+        // LIKE query ko hta diya gaya hy
+        $clientNumbers = client_number::select('number', 'id')
+            ->where('region', $region)
+            ->inRandomOrder()
+            ->take($numberCount)
+            ->get();
+
+        $customerName  = 'No Customer Name';
+
+        foreach ($clientNumbers as $clientNumber) {
+            customerNumber::create([
+                'customer_name'   => $customerName,
+                'customer_number' => $clientNumber->number,
+                'agent'           => $req->agent,
+                'date'            => $req->date,
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ]);
+        }
+
+        $clientNumbers->each(function ($clientNumber) {
+            $clientNumber->delete();
+        });
+
+        return redirect()->route('viewNumbersByRegion', ['region' => $region])
+            ->with(['success' => 'Distribute To ' . strtoupper($region) . ' Numbers Successfully']);
+    }
+
+    ///// End Distributed Numbers By Region Code /////
+    ///// End Region wise work number //////
 
 }

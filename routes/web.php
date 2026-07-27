@@ -46,12 +46,18 @@ Route::controller(dashboardController::class)->group(function () {
     Route::get('/dashboard/customer-numbers', 'viewCustomerNumber')->name('viewCustomerNumber')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/add-customer-numbers', 'viewCustomerNumberForm')->name('viewCustomerNumberForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/storeCustomerNumbers', 'storeCustomerNumbers')->name('storeCustomerNumbers')->middleware(validUser::class)->middleware(validRole::class);
+    //// Start Regional Numbers Routes ////
+    Route::get('/dashboard/numbers-region/{region}', 'viewNumbersByRegion')->name('viewNumbersByRegion')->middleware(validUser::class)->middleware(validRole::class);
+    Route::get('/dashboard/distribute-region/{region}', 'distributeNumbersFormByRegion')->name('distributeNumbersFormByRegion')->middleware(validUser::class)->middleware(validRole::class);
+    Route::post('/dashboard/store-region/{region}', 'storeDistributedNumbersByRegion')->name('storeDistributedNumbersByRegion')->middleware(validUser::class)->middleware(validRole::class);
+    //// End Regional Numbers Routes ////
     Route::get('/dashboard/all-numbers', 'viewNumbersTable')->name('viewNumbersTable')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/add-numbers', 'viewAddNumbersForm')->name('viewAddNumbersForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/storeNumbers', 'storeNumbers')->name('storeNumbers')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/{id}/customer-response', 'viewAgentDistributeNumbersDetail')->name('viewAgentDistributeNumbersDetail')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/all-agent-sale-reports/{id}/', 'viewSaleTable')->name('viewSaleTable')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/all-agent-lead-reports/{id}/', 'viewleadtable')->name('viewleadtable')->middleware(validUser::class)->middleware(validRole::class);
+    /// Lead Distribute Route ///
     Route::get('/dashboard/distribute-lead/{id}/', 'distributeLeadsForm')->name('distributeLeadsForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/updateLeadAgent/{id}', 'updateLeadAgent')->name('updateLeadAgent')->middleware(validUser::class)->middleware(validRole::class);
     /// Start Single Lead Distribute route  ///
@@ -64,19 +70,18 @@ Route::controller(dashboardController::class)->group(function () {
     /// End Multiple Lead Distribute route  ///
     Route::get('/dashboard/{id}/distribute-number', 'distributeNumberForm')->name('distributeNumberForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/distributeNumberToAgent', 'distributeNumberToAgent')->name('distributeNumberToAgent')->middleware(validUser::class)->middleware(validRole::class);
+    /// Sale Distribute Route ///
     Route::get('/dashboard/{id}/distributesaleToAgent', 'viewAgentDistributeSale')->name('viewAgentDistributeSale')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSaleAgent', 'updateSaleAgent')->name('updateSaleAgent')->middleware(validUser::class)->middleware(validRole::class);
     /// Start Single Sale Distribute route  ///
     Route::get('/dashboard/{id}/distribute-single-sale', 'distributeSingleSaleForm')->name('distributeSingleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/{id}/updateSingleSaleAgent', 'updateSingleSaleAgent')->name('updateSingleSaleAgent')->middleware(validUser::class)->middleware(validRole::class);
     /// End Single Sale Distribute route  ///
-    /// Start Multiple Sale Distribute route  ///
-    //Route::post('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
-    //Route::any('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
-    // Route::any ko hata kar wapas Route::post kar dein
+    /// Multiple Sale Distribute Route ///
     Route::post('/dashboard/distribute-multiple-sales', 'distributeMultipleSaleForm')->name('distributeMultipleSaleForm')->middleware(validUser::class)->middleware(validRole::class);
     Route::post('/dashboard/save-multiple-sales-distribution', 'saveMultipleSaleDistribution')->name('saveMultipleSaleDistribution')->middleware(validUser::class)->middleware(validRole::class);
     /// End Multiple Sale Distribute route  ///
+    /// Trial Distribute Route ///
     Route::get('/dashboard/{id}/all-agent-trial-report', 'viewtrialtable')->name('viewtrialtable')->middleware(validUser::class)->middleware(validRole::class);
     Route::get('/dashboard/{id}/distributeTrialsForm', 'distributeTrialsForm')->name('distributeTrialsForm')->middleware(validUser::class)->middleware(validRole::class);
     /// Start Single Trial Distribute Route ///

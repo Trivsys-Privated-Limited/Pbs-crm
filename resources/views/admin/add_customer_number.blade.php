@@ -9,11 +9,14 @@
                 <div class="col-12   mt-4">
                     <div class="card card-primary">
                         <div class="card-header">
-                            <h3 class="text-center">Distribute Customer Numbers To Agents</h3>
+                            <!-- <h3 class="text-center">Distribute Customer Numbers To Agents</h3> -->
+                            <h3 class="text-center">
+            Distribute {{ isset($region) ? strtoupper($region) : 'Customer' }} Numbers To Agents
+        </h3>
                         </div>
-                        <form action="{{ route('storeCustomerNumbers') }}" method="POST" enctype="multipart/form-data"
-                            autocomplete="off">
-                            @csrf
+                         <!-- Action route dynamically set ho raha hai yahan -->
+    <form action="{{ isset($region) ? route('storeDistributedNumbersByRegion', $region) : route('storeCustomerNumbers') }}" method="POST" enctype="multipart/form-data" autocomplete="off">
+        @csrf
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12 mt-2">
@@ -53,9 +56,9 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="{{ route('viewCustomerNumber') }}" class="btn btn-primary">Back</a>
-                                <button class="btn btn-primary">Save</button>
-                            </div>
+    <a href="{{ isset($region) ? route('viewNumbersByRegion', $region) : route('viewCustomerNumber') }}" class="btn btn-primary">Back</a>
+    <button class="btn btn-primary">Save</button>
+</div>
                         </form>
                     </div>
                 </div>

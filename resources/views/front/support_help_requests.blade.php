@@ -17,6 +17,7 @@
                 <th class="px-4 py-2 border border-gray-300">S.NO</th>
                 <th class="px-4 py-2 border border-gray-300">CUSTOMER NAME</th>
                 <th class="px-4 py-2 border border-gray-300">CUSTOMER NUMBER</th>
+                <th class="px-4 py-2 border border-gray-300">Customer Email</th>
                 <th class="px-4 py-2 border border-gray-300">MAC ADDRESS</th>
                 <th class="px-4 py-2 border border-gray-300">STATUS</th>
                 <th class="px-4 py-2 border border-gray-300">HELP REASON</th>
@@ -32,6 +33,7 @@
                     <td class="px-4 py-2 border border-gray-300 text-center">{{ $index + 1 }}</td>
                     <td class="px-4 py-2 border border-gray-300">{{ $data->c_name }}</td>
                     <td class="px-4 py-2 border border-gray-300">{{ $data->c_number }}</td>
+                    <td class="px-4 py-2 border border-gray-300">{{ $data->c_email }}</td>
                     <td class="px-4 py-2 border border-gray-300">{{ $data->make_address }}</td>
 
                     {{-- STATUS: Support update kar sakta hai --}}

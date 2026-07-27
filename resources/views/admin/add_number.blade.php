@@ -18,9 +18,12 @@
                                 <div class="row">
 
                                     <div class="col-12 mt-2">
-                                        <label for="exampleInputEmail1">Enter Numbers (one per line, only +1 numbers
-                                            allowed)</label>
-                                        <textarea class="form-control" name="customerNumber" rows="10" placeholder="+1 408 XXX XXXX  " id="floatingTextarea"></textarea>
+                                      <!--  <label for="exampleInputEmail1">Enter Numbers (one per line, only +1 numbers
+                                            allowed)</label> -->
+                                           <!-- <label for="exampleInputEmail1">Enter Numbers (one per line, only +1 numbers allowed)</label> -->
+
+                                            <label for="exampleInputEmail1">Enter Numbers (Only +1, +44, and +61 starting numbers allowed)</label>
+                                        <textarea class="form-control" name="customerNumber" rows="10" placeholder="Enter Your Numbers Here  " id="floatingTextarea"></textarea>
                                         @error('customerNumber')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
