@@ -855,7 +855,7 @@ public function updateTrialAgent(Request $req, string $id)
             // Transfer se pehle purane agent ka naam save karein
             $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
             
-            // Naye agent ki details update karein
+            // Naye agent ki details update karein 
             $oldAgent->a_name    = $newAgent->id;
             $oldAgent->user_name = $newAgent->name;
 
