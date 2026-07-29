@@ -11,7 +11,7 @@ use App\Models\not_service;
 use App\Models\oldCustomer;
 use App\Models\old_number;
 use App\Models\renewal;
-use App\Models\user;
+use App\Models\User as user; // Is se small 'user' bhi kaam karega
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -162,64 +162,64 @@ class dashboardController extends Controller
             ->whereDate('regitr_date', today())
             ->get();
 
-        $curentSale = $oldSalecustomerExpriDate->merge($NewSalecurentSale);
+        $curentSale    = $oldSalecustomerExpriDate->merge($NewSalecurentSale);
 
         // Total Pending Sale Count
-        // $pendingSaleOld = customer::whereMonth('regitr_date', $month)->whereYear('regitr_date', $year)->where('status', 'pending')->count();
-        // $pendingSaleNew   = oldCustomer::whereMonth('regitr_date', $month)->whereYear('regitr_date', $year)->where('status', 'pending')->count();
-        // $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
+       // $pendingSaleOld = customer::whereMonth('regitr_date', $month)->whereYear('regitr_date', $year)->where('status', 'pending')->count();
+       // $pendingSaleNew   = oldCustomer::whereMonth('regitr_date', $month)->whereYear('regitr_date', $year)->where('status', 'pending')->count();
+       // $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
 
-        // Total Pending Sale Count (All Time)
-        $pendingSaleOld   = Customer::where('status', 'pending')->count();
-        $pendingSaleNew   = OldCustomer::where('status', 'pending')->count();
-        $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
+       // Total Pending Sale Count (All Time)
+$pendingSaleOld  = Customer::where('status', 'pending')->count();
+$pendingSaleNew  = OldCustomer::where('status', 'pending')->count();
+$totalPendingSale = $pendingSaleOld + $pendingSaleNew;
 
         // Total Numbers
         $totalNumbers = client_number::count() + customerNumber::count() + old_number::count();
 
-        // --- NEW SEARCH LOGIC (Separate & Independent) ---
-        $searchResultsLeads        = collect();
-        $searchResultsSales        = collect();
+                // --- NEW SEARCH LOGIC (Separate & Independent) ---
+        $searchResultsLeads = collect();
+        $searchResultsSales = collect();
         $searchResultsPendingSales = collect();
-        $searchResultsTrials       = collect();
-        $searchResultsNumbers      = collect();
+        $searchResultsTrials = collect();
+        $searchResultsNumbers = collect();
 
-        if ($req->has('search') && ! empty($req->search)) {
+        if ($req->has('search') && !empty($req->search)) {
             $search = $req->search;
 
             // 1. Leads Search
             $searchResultsLeads = \App\Models\customer::with('user')
                 ->where('status', 'lead')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             // 2. Sales Search (Dono tables me)
             $salesOld = \App\Models\customer::with('user')
                 ->where('status', 'sale')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             $salesNew = \App\Models\oldCustomer::with('user')
                 ->where('status', 'sale')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             $searchResultsSales = $salesOld->merge($salesNew);
@@ -227,24 +227,24 @@ class dashboardController extends Controller
             // 2.5 Pending Sales Search
             $pendingSalesOld = \App\Models\customer::with('user')
                 ->where('status', 'pending')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             $pendingSalesNew = \App\Models\oldCustomer::with('user')
                 ->where('status', 'pending')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             $searchResultsPendingSales = $pendingSalesOld->merge($pendingSalesNew);
@@ -252,23 +252,23 @@ class dashboardController extends Controller
             // 3. Trials Search
             $searchResultsTrials = \App\Models\customer::with('user')
                 ->where('status', 'trial')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhere('customer_email', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhere('customer_email', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
 
             // 4. Distribute Numbers (CustomerNumber) Search
             $searchResultsNumbers = \App\Models\customerNumber::with('user')
-                ->where(function ($query) use ($search) {
+                ->where(function($query) use ($search) {
                     $query->where('customer_name', 'like', "%{$search}%")
-                        ->orWhere('customer_number', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        });
+                          ->orWhere('customer_number', 'like', "%{$search}%")
+                          ->orWhereHas('user', function($q) use ($search) {
+                              $q->where('name', 'like', "%{$search}%");
+                          });
                 })->get();
         }
 
@@ -282,21 +282,21 @@ class dashboardController extends Controller
             'lead',
             'price',
             'help',
-            'totalPendingSale', // <-- New Add Kiya hy Pending sale count krwany ky liye.
-            'totalNumbers',     /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. Client_numbers, Customer_numbers, old_numbers, inn table ma sy count horhy hen.
+            'totalPendingSale',  // <-- New Add Kiya hy Pending sale count krwany ky liye.
+            'totalNumbers', /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. Client_numbers, Customer_numbers, old_numbers, inn table ma sy count horhy hen.
             'curentSale',
             'leaveRequests',
-            'searchResultsLeads',        // <-- NAYA ADD HUA
-            'searchResultsSales',        // <-- NAYA ADD HUA
+            'searchResultsLeads',    // <-- NAYA ADD HUA
+            'searchResultsSales',    // <-- NAYA ADD HUA
             'searchResultsPendingSales', // <-- NAYA ADD HUA
-            'searchResultsTrials',       // <-- NAYA ADD HUA
-            'searchResultsNumbers',      // <-- NAYA ADD HUA
+            'searchResultsTrials',   // <-- NAYA ADD HUA
+            'searchResultsNumbers'   // <-- NAYA ADD HUA
         ]));
     }
 
 ////// Add New code start view Agent Sale Table //////
 
-    public function viewAgentSaleTable()
+     public function viewAgentSaleTable()
     {
         DB::statement('SET SESSION group_concat_max_len = 1000000');
         $customers = Customer::select(
@@ -358,7 +358,7 @@ class dashboardController extends Controller
     {
         $oldcustomer = Customer::with('user')->find($id);
         $newcustomer = OldCustomer::with('user')->find($id);
-        $customer    = $oldcustomer ? $oldcustomer : $newcustomer;
+        $customer = $oldcustomer ? $oldcustomer : $newcustomer;
 
         $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
         return view('admin.dis_single_sale', compact(['agents', 'customer']));
@@ -369,24 +369,24 @@ class dashboardController extends Controller
         $req->validate([
             'agent' => 'required',
         ]);
-
+        
         $oldcustomer = Customer::find($id);
         $newcustomer = OldCustomer::find($id);
-        $customer    = $oldcustomer ? $oldcustomer : $newcustomer;
+        $customer = $oldcustomer ? $oldcustomer : $newcustomer;
 
         $newAgent = User::find($req->agent);
 
         if ($customer->getTable() == 'customers') {
             // Previous agent ka fresh naam users table se lo (user_name pe rely mat karo)
-            $prevAgent                     = User::find($customer->a_name);
+            $prevAgent = User::find($customer->a_name);
             $customer->previous_agent_name = $prevAgent ? $prevAgent->name : ($customer->user_name ?? null);
-            $customer->a_name              = $newAgent->id;
-            $customer->user_name           = $newAgent->name;
+            $customer->a_name = $newAgent->id;
+            $customer->user_name = $newAgent->name;
         } else {
-            $prevAgent                     = User::find($customer->agent);
+            $prevAgent = User::find($customer->agent);
             $customer->previous_agent_name = $prevAgent ? $prevAgent->name : null;
-            $customer->agent               = $newAgent->id;
-            $customer->agent_name          = $newAgent->name;
+            $customer->agent = $newAgent->id;
+            $customer->agent_name = $newAgent->name;
         }
         $customer->save();
 
@@ -398,18 +398,18 @@ class dashboardController extends Controller
 
     /// Start New Multiple Sale Distribute ///
 
-    public function distributeMultipleSaleForm(Request $request)
+public function distributeMultipleSaleForm(Request $request)
     {
         // Agar page GET request se load ho raha hai (jaise validation fail hone par reload)
         // toh hum session se customer_ids nikalenge, warna request se.
         $customer_ids = $request->customer_ids;
 
-        if (! $customer_ids && session()->has('old_customer_ids')) {
+        if (!$customer_ids && session()->has('old_customer_ids')) {
             $customer_ids = session()->get('old_customer_ids');
         }
 
         // Agar dono jagah se IDs nahi milin (yani user direct URL enter kar ke aya hai)
-        if (! $customer_ids) {
+        if (!$customer_ids) {
             return redirect()->route('viewAgentSaleTable')->with('error', 'Please select at least one sale to distribute.');
         }
 
@@ -417,13 +417,13 @@ class dashboardController extends Controller
         session()->flash('old_customer_ids', $customer_ids);
 
         $selected_customers = collect();
-
-        foreach ($customer_ids as $id) {
+        
+        foreach($customer_ids as $id) {
             $customer = Customer::with('user')->find($id);
-            if (! $customer) {
+            if(!$customer) {
                 $customer = OldCustomer::with('user')->find($id);
             }
-            if ($customer) {
+            if($customer) {
                 $selected_customers->push($customer);
             }
         }
@@ -435,19 +435,19 @@ class dashboardController extends Controller
 
     public function saveMultipleSaleDistribution(Request $request)
     {
-        // 1. Validation
+        // 1. Validation 
         $request->validate([
             'customer_ids' => 'required|array|min:1',
-            'agent'        => 'required|exists:users,id',
+            'agent' => 'required|exists:users,id',
         ], [
-            'agent.required'        => 'Please select an agent first.',
-            'customer_ids.required' => 'Please select at least one sale to distribute.',
+            'agent.required' => 'Please select an agent first.',
+            'customer_ids.required' => 'Please select at least one sale to distribute.'
         ]);
 
         $newAgent = User::find($request->agent);
 
         // 2. Customers aur OldCustomers ki IDs ko alag alag array mein store karein
-        $customerIds    = [];
+        $customerIds = [];
         $oldCustomerIds = [];
 
         foreach ($request->customer_ids as $id) {
@@ -460,28 +460,28 @@ class dashboardController extends Controller
         }
 
         // 3. New Customers (Customer Model) ko update karein
-        if (! empty($customerIds)) {
+        if (!empty($customerIds)) {
             // Pehle previous agent name save karo - fresh naam users table se lo
             Customer::whereIn('id', $customerIds)->each(function ($cust) use ($newAgent) {
                 $prevAgent = User::find($cust->a_name);
-                $prevName  = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
+                $prevName = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
                 $cust->update([
                     'previous_agent_name' => $prevName,
-                    'a_name'              => $newAgent->id,
-                    'user_name'           => $newAgent->name,
+                    'a_name' => $newAgent->id,
+                    'user_name' => $newAgent->name,
                 ]);
             });
         }
 
         // 4. Old Customers (OldCustomer Model) ko update karein
-        if (! empty($oldCustomerIds)) {
+        if (!empty($oldCustomerIds)) {
             OldCustomer::whereIn('id', $oldCustomerIds)->each(function ($cust) use ($newAgent) {
                 $prevAgent = User::find($cust->agent);
-                $prevName  = $prevAgent ? $prevAgent->name : null;
+                $prevName = $prevAgent ? $prevAgent->name : null;
                 $cust->update([
                     'previous_agent_name' => $prevName,
-                    'agent'               => $newAgent->id,
-                    'agent_name'          => $newAgent->name,
+                    'agent' => $newAgent->id,
+                    'agent_name' => $newAgent->name,
                 ]);
             });
         }
@@ -554,9 +554,9 @@ class dashboardController extends Controller
         return redirect()->route('viewPendingSale')->with(['success' => 'Customer Detail Deleted Successfuly']);
     }
 
-    ////// start new add code view Agent Leadl Table //////
+ ////// start new add code view Agent Leadl Table //////
 
-    public function viewAgentLeadlTable()
+        public function viewAgentLeadlTable()
     {
         DB::statement('SET SESSION group_concat_max_len = 1000000');
         $customers = Customer::with('user')
@@ -618,32 +618,32 @@ class dashboardController extends Controller
     /// New logic for All Lead Distrubute With prev_agent name //////
 
     public function updateLeadAgent(Request $req, string $id)
-    {
-        // Old Agent se $req->number ke mutabiq leads fetch karein
-        $OldLeadAgent = Customer::where('status', 'lead')
-            ->where('a_name', $id)
-            ->take($req->number)
-            ->get();
+{
+    // Old Agent se $req->number ke mutabiq leads fetch karein
+    $OldLeadAgent = Customer::where('status', 'lead')
+                            ->where('a_name', $id)
+                            ->take($req->number)
+                            ->get();
 
-        // Reassignment se pehle purane agent ka fresh name fetch kar lein
-        $prevAgent     = User::find($id);
-        $prevAgentName = $prevAgent ? $prevAgent->name : null;
+    // Reassignment se pehle purane agent ka fresh name fetch kar lein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
 
-        // Target Agent ki details fetch karein
-        $newAgent = User::find($req->agent);
+    // Target Agent ki details fetch karein
+    $newAgent = User::find($req->agent);
 
-        if ($newAgent && $OldLeadAgent->isNotEmpty()) {
-            foreach ($OldLeadAgent as $lead) {
-                // Reassign karne se pehle purane agent ka naam save karein
-                $lead->previous_agent_name = $prevAgentName ?? ($lead->user_name ?? null);
-                $lead->a_name              = $newAgent->id;
-                $lead->user_name           = $newAgent->name;
-                $lead->save();
-            }
+    if ($newAgent && $OldLeadAgent->isNotEmpty()) {
+        foreach ($OldLeadAgent as $lead) {
+            // Reassign karne se pehle purane agent ka naam save karein
+            $lead->previous_agent_name = $prevAgentName ?? ($lead->user_name ?? null);
+            $lead->a_name = $newAgent->id;
+            $lead->user_name = $newAgent->name;
+            $lead->save();
         }
-
-        return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfully']);
     }
+
+    return redirect()->route('viewAgentLeadlTable')->with(['success' => 'Distribute Lead Successfully']);
+}
 
     /// End Here //////
 
@@ -652,7 +652,7 @@ class dashboardController extends Controller
     public function distributeSingleLeadForm(string $id)
     {
         $customer = Customer::with('user')->find($id);
-        $agents   = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
+        $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
         return view('admin.dis_single_lead', compact(['agents', 'customer']));
     }
 
@@ -661,22 +661,22 @@ class dashboardController extends Controller
         $req->validate([
             'agent' => 'required',
         ]);
-
+        
         $customer = Customer::find($id);
         $newAgent = User::find($req->agent);
 
         // Save previous agent name before reassigning
         $previousAgentName = $customer->user ? $customer->user->name : $customer->user_name;
 
-        $customer->a_name              = $newAgent->id;
-        $customer->user_name           = $newAgent->name;
+        $customer->a_name = $newAgent->id;
+        $customer->user_name = $newAgent->name;
         $customer->previous_agent_name = $previousAgentName;
         $customer->save();
 
         if ($newAgent) {
-            $message  = "New lead assigned to you:\n";
+            $message = "New lead assigned to you:\n";
             $message .= "• Name: {$customer->customer_name}";
-            if (! empty($customer->customer_number)) {
+            if (!empty($customer->customer_number)) {
                 $message .= " | Number: {$customer->customer_number}";
             }
             $newAgent->notify(new \App\Notifications\LeadDistributedNotification($message));
@@ -708,7 +708,7 @@ class dashboardController extends Controller
     {
         $request->validate([
             'customer_ids' => 'required|array|min:1',
-            'agent'        => 'required|exists:users,id',
+            'agent' => 'required|exists:users,id',
         ], [
             'agent.required' => 'Please select an agent first.',
         ]);
@@ -717,19 +717,19 @@ class dashboardController extends Controller
         $customersToUpdate = Customer::with('user')->whereIn('id', $request->customer_ids)->get();
 
         foreach ($customersToUpdate as $c) {
-            $prevName               = $c->user ? $c->user->name : $c->user_name;
+            $prevName = $c->user ? $c->user->name : $c->user_name;
             $c->previous_agent_name = $prevName;
-            $c->a_name              = $request->agent;
+            $c->a_name = $request->agent;
             $c->save();
         }
 
         $agent = User::find($request->agent);
         if ($agent) {
             $customers = Customer::whereIn('id', $request->customer_ids)->get();
-            $count     = $customers->count();
-            $namesList = $customers->map(function ($c) {
+            $count = $customers->count();
+            $namesList = $customers->map(function($c) {
                 $entry = "• {$c->customer_name}";
-                if (! empty($c->customer_number)) {
+                if (!empty($c->customer_number)) {
                     $entry .= " | {$c->customer_number}";
                 }
                 return $entry;
@@ -787,7 +787,7 @@ class dashboardController extends Controller
 
 ////// New add code start Agent Trial Table //////////
 
-    public function viewAgentTrialTable()
+ public function viewAgentTrialTable()
     {
         DB::statement('SET SESSION group_concat_max_len = 1000000');
         $customers = Customer::with('user')
@@ -846,40 +846,41 @@ class dashboardController extends Controller
         return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfuly']);
     }
         */
-
+    
     /// End Here trial_distribute old logic ///
 
     /// Add New Logic Trial Distribute With prev_agent_name show ////
 
-    public function updateTrialAgent(Request $req, string $id)
-    {
-        // Purane Agent aur Target Agent ko Users table se fetch karein
-        $prevAgent     = User::find($id);
-        $prevAgentName = $prevAgent ? $prevAgent->name : null;
+public function updateTrialAgent(Request $req, string $id)
+{
+    // Purane Agent aur Target Agent ko Users table se fetch karein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
 
-        $newAgent = User::find($req->agent);
+    $newAgent = User::find($req->agent);
 
-        // Purane Agent se requested count ($req->number) ke mutabiq trials fetch karein
-        $OldLeadAgent = Customer::where('status', 'trial')
-            ->where('a_name', $id)
-            ->take($req->number)
-            ->get();
+    // Purane Agent se requested count ($req->number) ke mutabiq trials fetch karein
+    $OldLeadAgent = Customer::where('status', 'trial')
+                            ->where('a_name', $id)
+                            ->take($req->number)
+                            ->get();
 
-        if ($newAgent && $OldLeadAgent->isNotEmpty()) {
-            foreach ($OldLeadAgent as $oldAgent) {
-                // Transfer se pehle purane agent ka naam save karein
-                $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
+    if ($newAgent && $OldLeadAgent->isNotEmpty()) {
+        foreach ($OldLeadAgent as $oldAgent) {
+            // Transfer se pehle purane agent ka naam save karein
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
+            
+            // Naye agent ki details update karein 
+            $oldAgent->a_name    = $newAgent->id;
+            $oldAgent->user_name = $newAgent->name;
 
-                // Naye agent ki details update karein
-                $oldAgent->a_name    = $newAgent->id;
-                $oldAgent->user_name = $newAgent->name;
-
-                $oldAgent->save();
-            }
+            $oldAgent->save();
         }
-
-        return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfully']);
     }
+
+    return redirect()->route('viewAgentTrialTable')->with(['success' => 'Distribute Trial Successfully']);
+}
+
 
     /// End Here New Logic Trial Distribute code  ///
 
@@ -888,7 +889,7 @@ class dashboardController extends Controller
     public function distributeSingleTrialForm(string $id)
     {
         $customer = Customer::with('user')->find($id);
-        $agents   = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
+        $agents = User::where('role', 'user')->where('id', '!=', $customer->a_name)->get();
         return view('admin.dis_single_trial', compact(['agents', 'customer']));
     }
 
@@ -897,15 +898,15 @@ class dashboardController extends Controller
         $req->validate([
             'agent' => 'required',
         ]);
-
+        
         $customer = Customer::find($id);
         $newAgent = User::find($req->agent);
 
         // Previous agent ka fresh naam users table se lo
-        $prevAgent                     = User::find($customer->a_name);
+        $prevAgent = User::find($customer->a_name);
         $customer->previous_agent_name = $prevAgent ? $prevAgent->name : ($customer->user_name ?? null);
 
-        $customer->a_name    = $newAgent->id;
+        $customer->a_name = $newAgent->id;
         $customer->user_name = $newAgent->name;
         $customer->save();
 
@@ -927,7 +928,7 @@ class dashboardController extends Controller
 
         // Get selected customers
         $selected_customers = Customer::with('user')->whereIn('id', $request->customer_ids)->get();
-
+        
         // Get agents
         $agents = User::where('role', 'user')->get();
 
@@ -938,7 +939,7 @@ class dashboardController extends Controller
     {
         $request->validate([
             'customer_ids' => 'required|array|min:1',
-            'agent'        => 'required|exists:users,id',
+            'agent' => 'required|exists:users,id',
         ], [
             'agent.required' => 'Please select an agent first.',
         ]);
@@ -948,11 +949,11 @@ class dashboardController extends Controller
         // Update all selected trials with new agent ID and Name
         Customer::whereIn('id', $request->customer_ids)->each(function ($cust) use ($newAgent) {
             $prevAgent = User::find($cust->a_name);
-            $prevName  = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
+            $prevName = $prevAgent ? $prevAgent->name : ($cust->user_name ?? null);
             $cust->update([
                 'previous_agent_name' => $prevName,
-                'a_name'              => $newAgent->id,
-                'user_name'           => $newAgent->name,
+                'a_name' => $newAgent->id,
+                'user_name' => $newAgent->name,
             ]);
         });
 
@@ -1200,9 +1201,9 @@ class dashboardController extends Controller
             ->with(['success' => 'New numbers added successfully']);
     } */
 
-    ////////// New Code For +1 +44 +61 Number Add Logic Start Here ////////
+     ////////// New Code For +1 +44 +61 Number Add Logic Start Here ////////
 
-    /*  public function storeNumbers(Request $req)
+   /*  public function storeNumbers(Request $req)
     {
         $customerNumberArray = preg_split('/[,\r\n]+|\s{2,}/', $req->customerNumber);
 
@@ -1307,7 +1308,7 @@ class dashboardController extends Controller
             ->with(['success' => 'New specific numbers added successfully']);
     }
 
-    ///////// End Region Number +1 +44 +61 Add Logic /////////////////
+     ///////// End Region Number +1 +44 +61 Add Logic /////////////////
 
     public function storeCustomerNumbers(Request $req)
     {
@@ -1337,8 +1338,8 @@ class dashboardController extends Controller
 
         return redirect()->route('viewNumbersTable')->with(['success' => 'Distribute To Customer Numbers Successfully']);
     }
-/// old code customer response /////
-    /*  public function viewAgentDistributeNumbersDetail(string $id)
+/// old code customer response ///// 
+  /*  public function viewAgentDistributeNumbersDetail(string $id)
     {
         $customerResponseReports = customerNumber::with('user')->where('agent', $id)->get();
         return view('admin.customer_response', compact('customerResponseReports'));
@@ -1347,15 +1348,15 @@ class dashboardController extends Controller
 
     //// Customer Response ma Expiry Number Remove hokr show hongy ///
 
-    public function viewAgentDistributeNumbersDetail(string $id)
-    {
-        $customerResponseReports = customerNumber::with('user')
-            ->where('agent', $id)
-            ->where('date', '>=', Carbon::now()->toDateString())
-            ->get();
+public function viewAgentDistributeNumbersDetail(string $id)
+{
+    $customerResponseReports = customerNumber::with('user')
+        ->where('agent', $id)
+        ->where('date', '>=', Carbon::now()->toDateString())
+        ->get();
 
-        return view('admin.customer_response', compact('customerResponseReports'));
-    }
+    return view('admin.customer_response', compact('customerResponseReports'));
+}
 
     /// End test expiry number /////
 
@@ -1398,7 +1399,7 @@ class dashboardController extends Controller
     }
 
     /// Old Logic for Sale Distribute Without Prev_agent_name Show ///
-    /*
+  /*  
     public function updateSaleAgent(Request $req, string $id)
     {
         $CustomerSaleAgent    = customer::where('status', 'sale')->where('a_name', $id)->get();
@@ -1424,7 +1425,7 @@ class dashboardController extends Controller
 
         return redirect()->route('viewAgentSaleTable')->with(['success' => 'Distribute Sale Successfully']);
     }
-
+     
     */
 
     /// End Here Old Logic Here ///
@@ -1432,45 +1433,46 @@ class dashboardController extends Controller
     /// New Logic For Sale Distribute with prev_agent_name Show ///
 
     public function updateSaleAgent(Request $req, string $id)
-    {
-        // 1. Purane Agent ka name User table se fetch karein
-        $prevAgent     = User::find($id);
-        $prevAgentName = $prevAgent ? $prevAgent->name : null;
+{
+    // 1. Purane Agent ka name User table se fetch karein
+    $prevAgent = User::find($id);
+    $prevAgentName = $prevAgent ? $prevAgent->name : null;
 
-        // 2. Naye Target Agent ko User table se fetch karein
-        $newAgent = User::find($req->agent);
+    // 2. Naye Target Agent ko User table se fetch karein
+    $newAgent = User::find($req->agent);
 
-        if ($newAgent) {
-            // 3. Customer table se $req->number ke mutabiq sales fetch karein
-            $CustomerSaleAgent = Customer::where('status', 'sale')
-                ->where('a_name', $id)
-                ->take($req->number)
-                ->get();
+    if ($newAgent) {
+        // 3. Customer table se $req->number ke mutabiq sales fetch karein
+        $CustomerSaleAgent = Customer::where('status', 'sale')
+                                     ->where('a_name', $id)
+                                     ->take($req->number)
+                                     ->get();
 
-            foreach ($CustomerSaleAgent as $oldAgent) {
-                $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
-                $oldAgent->a_name              = $newAgent->id;
-                $oldAgent->user_name           = $newAgent->name;
-                $oldAgent->save();
-            }
-
-            // 4. OldCustomer table se bhi $req->number ke mutabiq sales fetch karein
-            $oldCustomerSaleAgent = OldCustomer::where('status', 'sale')
-                ->where('agent', $id)
-                ->take($req->number)
-                ->get();
-
-            foreach ($oldCustomerSaleAgent as $oldAgent) {
-                $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->agent_name ?? null);
-                $oldAgent->agent               = $newAgent->id;
-                $oldAgent->agent_name          = $newAgent->name;
-                $oldAgent->save();
-            }
+        foreach ($CustomerSaleAgent as $oldAgent) {
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->user_name ?? null);
+            $oldAgent->a_name              = $newAgent->id;
+            $oldAgent->user_name           = $newAgent->name;
+            $oldAgent->save();
         }
 
-        return redirect()->route('viewAgentSaleTable')->with(['success' => 'Distribute Sale Successfully']);
+        // 4. OldCustomer table se bhi $req->number ke mutabiq sales fetch karein
+        $oldCustomerSaleAgent = OldCustomer::where('status', 'sale')
+                                           ->where('agent', $id)
+                                           ->take($req->number)
+                                           ->get();
+
+        foreach ($oldCustomerSaleAgent as $oldAgent) {
+            $oldAgent->previous_agent_name = $prevAgentName ?? ($oldAgent->agent_name ?? null);
+            $oldAgent->agent               = $newAgent->id;
+            $oldAgent->agent_name          = $newAgent->name;
+            $oldAgent->save();
+        }
     }
 
+    return redirect()->route('viewAgentSaleTable')->with(['success' => 'Distribute Sale Successfully']);
+}
+    
+    
     /// End Here New Logic ///
 
     public function filterSaleByDate(Request $req)
@@ -1543,7 +1545,7 @@ class dashboardController extends Controller
 
             return $customer;
         });
-
+         
         return view('admin.mac_expiry', compact('customers'));
     }
 
@@ -1646,12 +1648,13 @@ class dashboardController extends Controller
     public function notServiceNumber()
     {
         $customerResponseReports = not_service::with('user')
-            ->whereIn('status', ['not ava', 'not in service', 'not int'])
+            ->whereIn('status', ['not ava', 'not in service','not int'])
             ->get();
-
+       
         return view('admin.not_service_number', compact('customerResponseReports'));
 
     }
+
 
     ////// Star region wise work show ////
     // Helper function ki ab zaroorat nahi hai, aap getRegionPrefix($region) ko delete kar sakte hain.
@@ -1668,14 +1671,14 @@ class dashboardController extends Controller
     public function distributeNumbersFormByRegion($region)
     {
         $agentName = User::select('name', 'id')->where('role', 'user')->get();
-
+        
         // LIKE query ki jagah where('region', $region) use ho raha hy
         $allClientNumbersCount = client_number::where('region', $region)->count();
 
         return view('admin.add_customer_number', compact(['agentName', 'allClientNumbersCount', 'region']));
     }
 
-    //////////// Har region ki distribution ko save karny k liye ////////////
+    //////////// Har region ki distribution ko save karny k liye //////////// 
     public function storeDistributedNumbersByRegion(Request $req, $region)
     {
         $req->validate([
@@ -1693,7 +1696,7 @@ class dashboardController extends Controller
             ->take($numberCount)
             ->get();
 
-        $customerName = 'No Customer Name';
+        $customerName  = 'No Customer Name';
 
         foreach ($clientNumbers as $clientNumber) {
             customerNumber::create([
@@ -1718,58 +1721,58 @@ class dashboardController extends Controller
     ///// End Region wise work number //////
 
     // 1. Region wise Old Numbers View ///
-    public function viewOldNumbersByRegion($region)
-    {
-        $old_number = old_number::where('region', $region)->orderBy('id', 'desc')->paginate(100);
-        return view('admin.old_number', compact('old_number', 'region'));
-    }
+public function viewOldNumbersByRegion($region)
+{
+    $old_number = old_number::where('region', $region)->orderBy('id', 'desc')->paginate(100);
+    return view('admin.old_number', compact('old_number', 'region'));
+}
 
 // 2. Region wise Old Numbers Distribution Form ///
-    public function distributeOldNumbersFormByRegion($region)
-    {
-        $agentName             = User::select('name', 'id')->where('role', 'user')->get();
-        $allClientNumbersCount = old_number::where('region', $region)->count();
+public function distributeOldNumbersFormByRegion($region)
+{
+    $agentName = User::select('name', 'id')->where('role', 'user')->get();
+    $allClientNumbersCount = old_number::where('region', $region)->count();
 
-        return view('admin.dis_old_number', compact(['agentName', 'allClientNumbersCount', 'region']));
-    }
+    return view('admin.dis_old_number', compact(['agentName', 'allClientNumbersCount', 'region']));
+}
 
 // 3. Region wise Old Numbers Distribution Save ///
-    public function storeDistributedOldNumbersByRegion(Request $req, $region)
-    {
-        $req->validate([
-            'agent'  => 'required',
-            'date'   => 'required|date',
-            'number' => 'required|integer|min:1',
+public function storeDistributedOldNumbersByRegion(Request $req, $region)
+{
+    $req->validate([
+        'agent'  => 'required',
+        'date'   => 'required|date',
+        'number' => 'required|integer|min:1',
+    ]);
+
+    $numberCount = $req->input('number');
+
+    $clientNumbers = old_number::select('number', 'id')
+        ->where('region', $region)
+        ->inRandomOrder()
+        ->take($numberCount)
+        ->get();
+
+    $customerName = 'No Customer Name';
+
+    foreach ($clientNumbers as $clientNumber) {
+        customerNumber::create([
+            'customer_name'   => $customerName,
+            'customer_number' => $clientNumber->number,
+            'agent'           => $req->agent,
+            'date'            => $req->date,
+            'created_at'      => now(),
+            'updated_at'      => now(),
         ]);
-
-        $numberCount = $req->input('number');
-
-        $clientNumbers = old_number::select('number', 'id')
-            ->where('region', $region)
-            ->inRandomOrder()
-            ->take($numberCount)
-            ->get();
-
-        $customerName = 'No Customer Name';
-
-        foreach ($clientNumbers as $clientNumber) {
-            customerNumber::create([
-                'customer_name'   => $customerName,
-                'customer_number' => $clientNumber->number,
-                'agent'           => $req->agent,
-                'date'            => $req->date,
-                'created_at'      => now(),
-                'updated_at'      => now(),
-            ]);
-        }
-
-        $clientNumbers->each(function ($clientNumber) {
-            $clientNumber->delete();
-        });
-
-        return redirect()->route('viewOldNumbersByRegion', ['region' => $region])
-            ->with(['success' => 'Distribute To ' . strtoupper($region) . ' Old Numbers Successfully']);
     }
+
+    $clientNumbers->each(function ($clientNumber) {
+        $clientNumber->delete();
+    });
+
+    return redirect()->route('viewOldNumbersByRegion', ['region' => $region])
+        ->with(['success' => 'Distribute To ' . strtoupper($region) . ' Old Numbers Successfully']);
+}
 
 /// End Region Wise Old Numbers  Code Logic //////
 
