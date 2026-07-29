@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class old_number extends Model
 {
-    protected $fillable = ['number'];
+    protected $fillable = [
+    'number',
+    'region'
+    ];
 }

@@ -127,7 +127,7 @@
                         <div class="small-box bg-info">
                             <div class="inner">
                                 <h3> {{ $help }} </h3>
-                                <p>Total Help Request</p>
+                                <p>Total Help Request Pending</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-person-add"></i>
@@ -136,6 +136,34 @@
                                     class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
+                    @if (Auth::user()->role === 'admin')
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3> {{ $totalPendingSale }} </h3>
+                                    <p>Total Pending Sales</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-bag"></i>
+                                </div>
+                                <a href="{{ route('viewPendingSale') }}" class="small-box-footer">More info <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box" style="background-color: #6f42c1 !important;">
+                                <div class="inner">
+                                    <h3> {{ $totalNumbers }} </h3>
+                                    <p>Total Numbers</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-ios-telephone"></i>
+                                </div>
+                                <a href="#" class="small-box-footer"> <i
+                                        class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    @endif 
 
                 </div>
         </section>

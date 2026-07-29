@@ -13,7 +13,8 @@ class customerNumber extends Model
         'agent',
         'date',
         'status',
-        'remarks'
+        'remarks',
+        'region'
     ];
 
     public function user(){
