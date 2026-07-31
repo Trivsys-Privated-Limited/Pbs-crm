@@ -153,15 +153,18 @@
                         <div class="col-lg-3 col-6">
                             <div class="small-box" style="background-color: #6f42c1 !important;">
                                 <div class="inner">
-                                    <h3> {{ $totalNumbers }} </h3>
+                                   {{-- <h3> {{ $totalClientNumbers }} </h3>
                                     <p>Total Numbers</p>
+                                    --}}
+                                    
+                                    <p><span>Total US Numbers : </span><b>{{ $totalUsNumbers}}</b></p>
+                                    <p><span>Total UK Numbers : </span><b>{{ $totalUkNumbers}}</b></p>
+                                    <p><span>Total AUS Numbers : </span><b>{{ $totalAusNumbers}}</b></p>
                                 </div>
                                 <div class="icon">
                                     <i class="ion ion-ios-telephone"></i>
                                 </div>
-                                <a href="#" class="small-box-footer"> <i
-                                        class="fas fa-arrow-circle-right"></i></a>
-                            </div>
+                                
                         </div>
                     @endif 
 

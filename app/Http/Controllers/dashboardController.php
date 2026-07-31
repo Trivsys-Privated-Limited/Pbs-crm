@@ -170,14 +170,21 @@ class dashboardController extends Controller
        // $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
 
        // Total Pending Sale Count (All Time)
-$pendingSaleOld  = Customer::where('status', 'pending')->count();
-$pendingSaleNew  = OldCustomer::where('status', 'pending')->count();
-$totalPendingSale = $pendingSaleOld + $pendingSaleNew;
+        $pendingSaleOld  = Customer::where('status', 'pending')->count();
+        $pendingSaleNew  = OldCustomer::where('status', 'pending')->count();
+        $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
 
-        // Total Numbers
-        $totalNumbers = client_number::count() + customerNumber::count() + old_number::count();
+        // Total Numbers Count //
+       /* $totalClientNumbers = client_number::count();
+        $totalCustomerNumbers = customerNumber::count();
+        $totalOldNumbers = old_number::count(); */
 
-                // --- NEW SEARCH LOGIC (Separate & Independent) ---
+        // Total Regional Wise Count From Client_numbers and old_numbers tables //
+        $totalUsNumbers = client_number::where('region','us')->count() + old_number::where('region', 'us')->count();
+        $totalUkNumbers = client_number::where('region','uk')->count() + old_number::where('region', 'uk')->count();
+        $totalAusNumbers = client_number::where('region','aus')->count() + old_number::where('region', 'aus')->count();
+
+        // --- NEW SEARCH LOGIC (Separate & Independent) --- //
         $searchResultsLeads = collect();
         $searchResultsSales = collect();
         $searchResultsPendingSales = collect();
@@ -283,7 +290,9 @@ $totalPendingSale = $pendingSaleOld + $pendingSaleNew;
             'price',
             'help',
             'totalPendingSale',  // <-- New Add Kiya hy Pending sale count krwany ky liye.
-            'totalNumbers', /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. Client_numbers, Customer_numbers, old_numbers, inn table ma sy count horhy hen.
+            'totalUsNumbers', /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. Client_numbers table ma sy count horhy hen.
+            'totalUkNumbers',  /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. Customer_numbers table ma sy count horhy hen.
+            'totalAusNumbers', /// <-- New Add kiya hy  Total Numbers Count krwany ky liye. old_numbers table ma sy count horhy hen.
             'curentSale',
             'leaveRequests',
             'searchResultsLeads',    // <-- NAYA ADD HUA
@@ -1319,13 +1328,14 @@ public function updateTrialAgent(Request $req, string $id)
         ]);
 
         $number        = $req->input('number');
-        $clientNumbers = client_number::select('number', 'id')->inRandomOrder()->take($number)->get();
+        $clientNumbers = client_number::select('number', 'id', 'region')->inRandomOrder()->take($number)->get();
         $customerName  = 'No Customer Name';
 
         foreach ($clientNumbers as $clientNumber) {
             customerNumber::create([
                 'customer_name'   => $customerName,
                 'customer_number' => $clientNumber->number,
+                'region'          => $clientNumber->region, // CHANGE: Yeh add karein
                 'agent'           => $req->agent,
                 'date'            => $req->date,
                 'created_at'      => now(),
@@ -1609,7 +1619,7 @@ public function viewAgentDistributeNumbersDetail(string $id)
         ]);
 
         $number        = $req->input('number');
-        $clientNumbers = old_number::select('number', 'id')
+        $clientNumbers = old_number::select('number', 'id','region')
             ->inRandomOrder()
             ->take($number)
             ->get();
@@ -1619,6 +1629,7 @@ public function viewAgentDistributeNumbersDetail(string $id)
             customerNumber::create([
                 'customer_name'   => $customerName,
                 'customer_number' => $clientNumber->number,
+                'region'          => $clientNumber->region, // CHANGE: Yeh add karein
                 'agent'           => $req->agent,
                 'date'            => $req->date,
                 'created_at'      => now(),
@@ -1690,7 +1701,7 @@ public function viewAgentDistributeNumbersDetail(string $id)
         $numberCount = $req->input('number');
 
         // LIKE query ko hta diya gaya hy
-        $clientNumbers = client_number::select('number', 'id')
+        $clientNumbers = client_number::select('number', 'id', 'region')
             ->where('region', $region)
             ->inRandomOrder()
             ->take($numberCount)
@@ -1702,6 +1713,7 @@ public function viewAgentDistributeNumbersDetail(string $id)
             customerNumber::create([
                 'customer_name'   => $customerName,
                 'customer_number' => $clientNumber->number,
+                'region'          => $clientNumber->region ?? $region, // CHANGE: Region yahan pass karein
                 'agent'           => $req->agent,
                 'date'            => $req->date,
                 'created_at'      => now(),
@@ -1747,7 +1759,7 @@ public function storeDistributedOldNumbersByRegion(Request $req, $region)
 
     $numberCount = $req->input('number');
 
-    $clientNumbers = old_number::select('number', 'id')
+    $clientNumbers = old_number::select('number', 'id', 'region')
         ->where('region', $region)
         ->inRandomOrder()
         ->take($numberCount)
@@ -1759,6 +1771,7 @@ public function storeDistributedOldNumbersByRegion(Request $req, $region)
         customerNumber::create([
             'customer_name'   => $customerName,
             'customer_number' => $clientNumber->number,
+            'region'          => $clientNumber->region ?? $region, // CHANGE: Region yahan pass karein
             'agent'           => $req->agent,
             'date'            => $req->date,
             'created_at'      => now(),
