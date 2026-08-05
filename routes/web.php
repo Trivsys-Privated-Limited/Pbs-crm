@@ -154,6 +154,8 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
     Route::controller(SupportController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
         Route::get('/dashboard/import', 'index')->name('support.import');
         Route::post('/dashboard/import', 'store')->name('support.import.store');
+       /* Route::get('/edit-support-number/{id}', 'editSupportNumber')->name('editSupportNumber');
+        Route::post('/support-number/{id}', 'storeSupportNumber')->name('storeSupportNumber');*/
     });
 
     Route::controller(AdvanceController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
@@ -222,9 +224,20 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::post('/SaleExpiry/{id}/update', 'updateSaleExpiry')->name('updateSaleExpiry')->middleware(validUser::class);
         Route::get('/{id}/viewUpdateSaleExpiryForm', 'viewUpdateSaleExpiryForm')->name('viewUpdateSaleExpiryForm')->middleware(validUser::class);
         Route::get('/supportNumbers', 'supportNumbers')->name('supportNumbers')->middleware(validUser::class);
+        // Satisfied or non satisfied route ///
+        Route::get('/satisfied-numbers', [CustomerController::class, 'satisfiedNumbers'])->name('satisfiedNumbers');
+Route::get('/non-satisfied-numbers', [CustomerController::class, 'nonSatisfiedNumbers'])->name('nonSatisfiedNumbers');
+
         Route::get('/daniyalNumbers', 'daniyalNumbers')->name('daniyalNumbers')->middleware(validUser::class);
         Route::get('/saadNumbers', 'saadNumbers')->name('saadNumbers')->middleware(validUser::class);
         Route::post('/{id}/storeSupportNumber', 'storeSupportNumber')->name('storeSupportNumber')->middleware(validUser::class);
+        ///
+
+        // Edit Page Route
+         Route::get('/edit-support-number/{id}', [CustomerController::class, 'editSupportNumber'])->name('editSupportNumber');
+
+        // Update Route (Aapki file ke line 391 ke mutabiq)
+         Route::post('/store-support-number/{id}', [CustomerController::class, 'storeSupportNumber'])->name('storeSupportNumber');
     });
 
     Route::controller(HelpController::class)->group(function () {

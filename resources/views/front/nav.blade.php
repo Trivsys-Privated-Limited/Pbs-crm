@@ -3,17 +3,29 @@
         <div class="w-[19%]">
             <img class="w-[70%]" src="{{ asset('logo/logo.png') }}" alt="">
         </div>
-        @if (Auth::user()->role == 'support')
+     <!--   @if (Auth::user()->role == 'support')
             <div class="me-12">
                 <ul class="flex justify-center place-items-center gap-[1rem] ">
+                   // <li class=""><a href="{{ route('saadNumbers')}}" class="text-white">Saad</a></li>
+                   // <li class=""><a href="{{ route('daniyalNumbers')}}" class="text-white">Daniyal</a></li>
                     <li class=""><a href="{{ route('supportNumbers') }}" class="text-white">Support</a></li>
-                    <!-- daniyal number 
-                        saad number 
-                    view route show here -->
                     <li class=""><a href="{{ route('support.helpRequests') }}" class="text-white">Help Requests</a></li>
                     <li class=""><a href="{{ route('support.resolvedRequests') }}" class="text-white">Resolved Requests</a></li>
                 </ul>
             </div>
+-->
+            @if (Auth::user()->role == 'support')
+    <div class="me-12">
+        <ul class="flex justify-center place-items-center gap-[1rem] ">
+            <li class=""><a href="{{ route('supportNumbers') }}" class="text-white">Support</a></li>
+            <li class=""><a href="{{ route('satisfiedNumbers') }}" class="text-white">Satisfied</a></li>
+            <li class=""><a href="{{ route('nonSatisfiedNumbers') }}" class="text-white">Non Satisfied</a></li>
+            <li class=""><a href="{{ route('support.helpRequests') }}" class="text-white">Help Requests</a></li>
+            <li class=""><a href="{{ route('support.resolvedRequests') }}" class="text-white">Resolved Requests</a></li>
+        </ul>
+    </div>
+@endif
+
         @else
             <div class="me-12">
                 <ul class="flex justify-center place-items-center gap-[1rem] ">

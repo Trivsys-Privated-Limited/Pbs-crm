@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class CustomerController extends Controller
 {
     public function storeCustomerDetail(Request $req)
@@ -487,11 +488,26 @@ class CustomerController extends Controller
             ->with(['success' => 'Customer Expiry Date Updated Successfully']);
     }
 
+  /*
     public function supportNumbers()
     {
-        $supportNumbers = support::where('show_status', 'S')->paginate(100);
+        $supportNumbers = support::where('show_status', 'Sale Lead')->paginate(100);
         return view('front.support_number', compact('supportNumbers'));
     }
+        */
+
+    public function supportNumbers()
+{
+    $supportNumbers = support::where('show_status', 'Sale')
+        ->where(function($query) {
+            $query->whereNotIn('status', ['Satisfied', 'Non Satisfied'])
+                  ->orWhereNull('status');
+        })
+        ->paginate(100);
+
+    return view('front.support_number', compact('supportNumbers'));
+}
+
 
     public function daniyalNumbers()
     {
@@ -505,6 +521,7 @@ class CustomerController extends Controller
         return view('front.saad_number', compact('supportNumbers'));
     }
 
+    /*
     public function storeSupportNumber(Request $req, string $id)
     {
         $req->validate([
@@ -517,5 +534,76 @@ class CustomerController extends Controller
         $support->save();
         return back()->with('success', 'Support Number Updated Successfully');
     }
+        */
+
+
+    /*
+    public function storeSupportNumber(Request $req, string $id)
+{
+    // 1. Validation Rules
+    $req->validate([
+        'remarks' => 'required',
+        'status'  => 'required',
+    ]);
+
+    // 2. find() ki jagah findOrFail() use karein (agar ID invalid ho toh 404 error throw hoga)
+    $support = Support::findOrFail($id);
+
+    // 3. Update Record
+    $support->update([
+        'remarks' => $req->remarks,
+        'status'  => $req->status,
+    ]);
+
+    // 4. Return Redirect with Flash Message
+    return back()->with('success', 'Support Number Updated Successfully');
+}
+    */
+
+
+// Edit Page Render karne ka method
+public function editSupportNumber($id)
+{
+    $customer = support::findOrFail($id);
+   return view('front.edit_support_number', compact('customer'));
+}
+
+// Update ka Method
+public function storeSupportNumber(Request $req, string $id)
+{
+    $req->validate([
+        'remarks' => 'required',
+        'status'  => 'required',
+    ]);
+
+    $support = support::findOrFail($id);
+    $support->remarks = $req->remarks;
+    $support->status  = $req->status;
+    $support->save();
+
+    // Support numbers ki list wale route par redirect karein
+    return redirect()->route('supportNumbers')->with('success', 'Support Number Updated Successfully');
+}
+
+// Satisfied Numbers List
+public function satisfiedNumbers()
+{
+    $supportNumbers = support::where('show_status', 'Sale')
+        ->where('status', 'Satisfied')
+        ->paginate(100);
+
+    return view('front.satisfied_number', compact('supportNumbers'));
+}
+
+// Non Satisfied Numbers List
+public function nonSatisfiedNumbers()
+{
+    $supportNumbers = support::where('show_status', 'Sale')
+        ->where('status', 'Non Satisfied')
+        ->paginate(100);
+
+    return view('front.non_satisfied_number', compact('supportNumbers'));
+}
+
 
 }

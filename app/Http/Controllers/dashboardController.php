@@ -179,10 +179,10 @@ class dashboardController extends Controller
         $totalCustomerNumbers = customerNumber::count();
         $totalOldNumbers = old_number::count(); */
 
-        // Total Regional Wise Count From Client_numbers and old_numbers tables //
-        $totalUsNumbers = client_number::where('region','us')->count() + old_number::where('region', 'us')->count();
-        $totalUkNumbers = client_number::where('region','uk')->count() + old_number::where('region', 'uk')->count();
-        $totalAusNumbers = client_number::where('region','aus')->count() + old_number::where('region', 'aus')->count();
+        // Total Regional Wise Count From Client_numbers and old_numbers and customer_numbers tables //
+        $totalUsNumbers = client_number::where('region','us')->count() + old_number::where('region', 'us')->count() + customerNumber::where('region', 'us')->count();
+        $totalUkNumbers = client_number::where('region','uk')->count() + old_number::where('region', 'uk')->count() + customerNumber::where('region', 'uk')->count();
+        $totalAusNumbers = client_number::where('region','aus')->count() + old_number::where('region', 'aus')->count() + customerNumber::where('region', 'aus')->count();
 
         // --- NEW SEARCH LOGIC (Separate & Independent) --- //
         $searchResultsLeads = collect();

@@ -12,6 +12,8 @@ class support extends Model
     protected  $fillable = [
         'name',
         'number',
-        'show_status'
+        'show_status',
+        'remarks',
+        'status'
     ];
 }
