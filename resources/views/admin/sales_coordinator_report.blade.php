@@ -181,8 +181,12 @@
                         </tbody>
                     </table>
                 </div>
+                <!--
                 <div class="card-footer clearfix">
                     {{ $coordinatorData->appends(request()->query())->links() }}
+                </div> -->
+                <div class="card-footer clearfix">
+                    {{ $coordinatorData->appends(request()->query())->links('pagination::bootstrap-4') }}
                 </div>
             </div>
 
