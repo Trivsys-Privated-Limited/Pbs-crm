@@ -10,9 +10,14 @@
                     <div class="col-sm-3">
                         <h1 class="m-0 d-inline">All Agent Sale Report</h1>
                     </div>
+                    <!-- Just Hide this link From Sales Coordinator -->
+                    @if(Auth::user()->role !== 'sales coordinator')
                     <div class="col-sm-3">
                         <a href="{{ route('viewAddNewAgentSaleForm') }}" class="btn btn-primary">Add New</a>
                     </div>
+                    @endif
+                    <!-- End -->
+
                     <div class="col-sm-6">
                         <form action="{{ route('filterSaleByDate') }}" method="get" id="filterbyDateForm">
                             <div class="row">
@@ -64,10 +69,14 @@
                                                     class="btn btn-primary">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
+                                                <!-- Just Hide this link From Sales Coordinator -->
+                                                @if(Auth::user()->role !== 'sales coordinator')
                                                 <a href="{{ route('viewAgentDistributeSale', $customer->user_id) }}"
                                                     class="btn btn-primary">
                                                     Distribute Sale
                                                 </a>
+                                                @endif
+                                                <!-- End -->
                                             </td>
                                         </tr>
                                     @endif

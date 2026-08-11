@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class support extends Model
+class ExpiredSupport extends Model
 {
     use HasFactory;
 
@@ -13,12 +13,8 @@ class support extends Model
         'name', 
         'number', 
         'agent_name', 
-        'expiry_date', 
-        'show_status', 
-        'status', 
-        'assigned_by_name', 
-        'assigned_by_role', 
-        'assigned_date',
+        'old_expiry_date', 
+        'show_status',
         'assigned_to'
     ];
 }

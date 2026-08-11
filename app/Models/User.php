@@ -23,6 +23,7 @@ class User extends Authenticatable
         'address',
         'role',
         'password',
+        'ip_address', // Yahan ip_address shamil kar diya gaya hai
     ];
 
     /**

@@ -16,8 +16,15 @@ use App\Http\Middleware\CheckOfficeIP;
 use App\Http\Middleware\validRole;
 use App\Http\Middleware\validUser;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SalesCoordinatorController;
 
 Route::middleware(CheckOfficeIP::class)->group(function () {
+
+    // Sales Coordinator Route
+    Route::get('/sales-coordinator/dashboard', [SalesCoordinatorController::class, 'dashboard'])
+        ->name('salesCoordinator.dashboard')
+        ->middleware(validUser::class);
+        
     Route::controller(dashboardController::class)->group(function () {
         Route::get('/dashboard', 'viewDashboard')->name('dashboard')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/viewAgentSaleTable', 'viewAgentSaleTable')->name('viewAgentSaleTable')->middleware(validUser::class)->middleware(validRole::class);
@@ -110,6 +117,8 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/dashboard/all-leave-recode', 'viewAllLeaveRecode')->name('viewAllLeaveRecode')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/{id}/viewRenewalpage', 'viewRenewalpage')->name('viewRenewalpage')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/notServiceNumber', 'notServiceNumber')->name('notServiceNumber')->middleware(validUser::class)->middleware(validRole::class);
+        /// Sales Coordinator Report Route ///
+        Route::get('/dashboard/sales-coordinator-reports', [dashboardController::class, 'salesCoordinatorReports'])->name('salesCoordinatorReports')->middleware(validUser::class)->middleware(validRole::class);
     });
 
     Route::controller(userController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
@@ -154,6 +163,10 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
     Route::controller(SupportController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
         Route::get('/dashboard/import', 'index')->name('support.import');
         Route::post('/dashboard/import', 'store')->name('support.import.store');
+        Route::post('/dashboard/reassign-multiple-supports', 'reassignMultipleSupportData')->name('support.reassign.multiple');
+        // Expired & Re-assign Routes
+        Route::get('/dashboard/expired-supports', 'expiredSupportData')->name('support.expired');
+        Route::post('/dashboard/reassign-support/{id}', 'reassignSupportData')->name('support.reassign');
        /* Route::get('/edit-support-number/{id}', 'editSupportNumber')->name('editSupportNumber');
         Route::post('/support-number/{id}', 'storeSupportNumber')->name('storeSupportNumber');*/
     });
@@ -226,7 +239,10 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/supportNumbers', 'supportNumbers')->name('supportNumbers')->middleware(validUser::class);
         // Satisfied or non satisfied route ///
         Route::get('/satisfied-numbers', [CustomerController::class, 'satisfiedNumbers'])->name('satisfiedNumbers');
-Route::get('/non-satisfied-numbers', [CustomerController::class, 'nonSatisfiedNumbers'])->name('nonSatisfiedNumbers');
+        Route::get('/non-satisfied-numbers', [CustomerController::class, 'nonSatisfiedNumbers'])->name('nonSatisfiedNumbers');
+        // Naye Routes yahan add karein
+        Route::get('/not-answering-numbers', [CustomerController::class, 'notAnsweringNumbers'])->name('notAnsweringNumbers');
+        Route::get('/call-me-back-numbers', [CustomerController::class, 'callMeBackNumbers'])->name('callMeBackNumbers');
 
         Route::get('/daniyalNumbers', 'daniyalNumbers')->name('daniyalNumbers')->middleware(validUser::class);
         Route::get('/saadNumbers', 'saadNumbers')->name('saadNumbers')->middleware(validUser::class);

@@ -29,9 +29,14 @@
                             @csrf
                             
                             <!-- Bulk Distribute Button -->
+                             <!-- Just Hide this link From Sales Coordinator -->
+                             @if(Auth::user()->role !== 'sales coordinator')
                             <button type="submit" class="btn btn-success mb-3">
                                 <i class="fa-solid fa-share-nodes"></i> Distribute Selected Sales
                             </button>
+                            @endif
+                             <!-- End -->
+
                         <table id="example1" class="table table-bordered table-striped">
                             @if (session('success'))
                                 <div class="alert alert-success text-center" role="alert">
@@ -41,7 +46,11 @@
                             <thead>
                                 <tr>
                                     <!-- Naya Checkbox Header -->
-                                        <th><input type="checkbox" id="selectAll">Select</th>
+                                     <!-- Just Hide this link From Sales Coordinator -->
+                                    @if(Auth::user()->role !== 'sales coordinator')
+                                    <th><input type="checkbox" id="selectAll">Select</th>
+                                    @endif
+                                    <!-- End -->
                                     <th>ID</th>
                                     <th>CUSTOMER REGISTRATION DATE</th>
                                     <th>CUSTOMER NAME</th>
@@ -53,14 +62,22 @@
                                     <th>AGENT NAME</th>
                                     <th>MAC ADDRESS</th>
                                     <th>MAC ADDRESS EXPIRY DATE</th>
+                                    <!-- Just Hide this link From Sales Coordinator -->
+                                     @if(Auth::user()->role !== 'sales coordinator')
                                     <th>ACTION</th>
+                                    @endif
+                                    <!-- End -->
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($customers as $index => $customer)
                                     <tr>
                                         <!-- Row Checkbox -->
+                                        <!-- just hide from Sales Cordinator -->
+                                         @if(Auth::user()->role !== 'sales coordinator')
                                             <td><input type="checkbox" name="customer_ids[]" value="{{ $customer->id }}" class="sale-checkbox"></td>
+                                            @endif
+                                            <!-- end -->
                                         <td> {{ $index + 1 }} </td>
                                         <td>
                                             @if ($customer->regitr_date)
@@ -93,6 +110,8 @@
                                                 No Expiry Date
                                             @endif
                                         </td>
+                                        <!-- Just Hide this link From Sales Coordinator -->
+                                         @if(Auth::user()->role !== 'sales coordinator')
                                         <td>
                                             <a href="{{ route('viewRenewalpage', $customer->id) }}"
                                                 class="btn btn-primary">View Renewal</a>
@@ -103,6 +122,8 @@
                                             <a href="{{ route('distributeSingleSaleForm', $customer->id) }}"
                                                 class="btn btn-warning" title="Distribute Sale"><i class="fa-solid fa-share"></i></a>
                                         </td>
+                                        @endif
+                                        <!-- End -->
                                     </tr>
                                 @endforeach
                             </tbody>

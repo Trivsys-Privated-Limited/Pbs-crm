@@ -61,6 +61,8 @@
                                             <option selected>-- Select Role --</option>
                                             <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>user</option>
                                             <option value="support" {{ $user->role == 'support' ? 'selected' : '' }}>support</option>
+                                            <!-- Naya Role Yahan Add Karein -->
+                                            <option value="sales coordinator" {{ $user->role == 'sales coordinator' ? 'selected' : '' }}>sales coordinator</option>
                                         </select>
                                         @error('role')
                                             <span class="text-danger">{{ $message }}</span>

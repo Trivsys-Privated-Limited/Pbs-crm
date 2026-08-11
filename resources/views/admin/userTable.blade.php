@@ -50,7 +50,8 @@
                             </thead>
                             <tbody>
                                 @foreach ($users as $index => $user)
-                                    @if ($user->role == 'user' || $user->role == 'support')
+                                   {{-- @if ($user->role == 'user' || $user->role == 'support') --}}
+                                   @if ($user->role == 'user' || $user->role == 'support' || $user->role == 'sales coordinator')
                                         <tr>
                                             <td> {{ $index + 1 }} </td>
                                             <td> {{ $user->name }} </td>

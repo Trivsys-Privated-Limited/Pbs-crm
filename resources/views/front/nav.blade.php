@@ -9,6 +9,10 @@
                     <li class=""><a href="{{ route('supportNumbers') }}" class="text-white">Support</a></li>
                     <li class=""><a href="{{ route('satisfiedNumbers') }}" class="text-white">Satisfied</a></li>
                     <li class=""><a href="{{ route('nonSatisfiedNumbers') }}" class="text-white">Non Satisfied</a></li>
+                    <!-- Naye links add kiye gaye hain -->
+                    <li class=""><a href="{{ route('notAnsweringNumbers') }}" class="text-white">Not Answering</a></li>
+                    <li class=""><a href="{{ route('callMeBackNumbers') }}" class="text-white">Call me Back</a></li>
+                    <!-- End -->
                     <li class=""><a href="{{ route('support.helpRequests') }}" class="text-white">Help Requests</a></li>
                     <li class=""><a href="{{ route('support.resolvedRequests') }}" class="text-white">Resolved Requests</a></li>
                 </ul>

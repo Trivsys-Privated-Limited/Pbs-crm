@@ -11,6 +11,10 @@
                     <th class="px-4 py-2 border">PHONE NUMBER</th>
                     <th class="px-4 py-2 border">STATUS</th>
                     <th class="px-4 py-2 border">REMARKS</th>
+                    <!-- add two new column -->
+                    <th class="px-4 py-2 border">AGENT NAME</th>
+                    <th class="px-4 py-2 border">EXPIRY DATE</th>
+                    <!-- end -->
                     <th class="px-4 py-2 border">ACTION</th>
                 </tr>
             </thead>
@@ -58,6 +62,13 @@
                         <td class="px-4 py-2 border">
                             {{ $customer->remarks ?? 'N/A' }}
                         </td>
+
+                        <!-- Add two New Column -->
+                         <td class="px-4 py-2 border">{{ $customer->agent_name ?? 'N/A' }}</td>
+                         <td class="px-4 py-2 border text-red-600 font-bold">
+                             {{ \Carbon\Carbon::parse($customer->expiry_date)->format('d M, Y') }}
+                         </td>
+                         <!-- End -->
 
                         {{-- ACTION (EDIT BUTTON) --}}
                         <td class="px-4 py-2 border text-center">

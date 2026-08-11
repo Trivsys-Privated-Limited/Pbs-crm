@@ -82,7 +82,7 @@ class userController extends Controller
         $subject    = 'Hello ' . $req->user_name . ' Login Now';
         $message    = 'Email : ' . $req->user_email . ' Password : ' . $req->user_password;
 
-        User::insert([
+     /*   User::insert([
             'name'       => $req->user_name,
             'email'      => $req->user_email,
             'phone'      => $phone,
@@ -92,7 +92,20 @@ class userController extends Controller
             'role'       => $req->role,
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
+        ]); */
+
+        // User::insert ki jagah User::create use karein
+    User::create([
+        'name'       => $req->user_name,
+        'email'      => $req->user_email,
+        'phone'      => $phone,
+        'address'    => $address,
+        'password'   => Hash::make($req->user_password),
+        'ip_address' => '1',
+        'role'       => $req->role,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
         return redirect()->route('viewUserTable')->with(['success' => 'User Created Successfuly']);
     }
@@ -193,11 +206,21 @@ class userController extends Controller
         // Har login par notification bhejega (Naya Addition)
         // $this->sendLoginNotification($user);
 
-        if ($user->role === 'support') {
+      /*  if ($user->role === 'support') {
             return redirect()->route('supportNumbers');
         } else {
             return redirect()->route('viewHome');
-        }
+        } */
+
+            // naya logic add for sales coordinator and support
+        if ($user->role === 'sales coordinator') {
+            // Naya redirect sales coordinator ke liye
+            return redirect()->route('salesCoordinator.dashboard');
+        } elseif ($user->role === 'support') {
+            return redirect()->route('supportNumbers');
+        } else {
+            return redirect()->route('viewHome');
+        } 
 
     } else {
         return back()->withErrors([

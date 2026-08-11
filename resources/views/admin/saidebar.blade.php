@@ -11,14 +11,38 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
-                    <li class="nav-item menu-open">
+                  <!--  <li class="nav-item menu-open">
                         <a href="{{ route('dashboard') }}" class="nav-link active">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
                             <p>
                                 Dashboard
                             </p>
                         </a>
-                    </li>
+                    </li> -->
+
+   <!--                 <li class="nav-item menu-open">
+    @if (Auth::user()->role === 'sales coordinator')
+        {{-- Sales Coordinator ke liye unka apna route --}}
+        <a href="{{ url('sales-coordinator/dashboard') }}" class="nav-link active">
+    @else
+        {{-- Baki sab (Admin wagaira) ke liye purana route --}}
+        <a href="{{ route('dashboard') }}" class="nav-link active">
+    @endif
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Dashboard</p>
+    </a>
+</li> -->
+
+<li class="nav-item menu-open">
+    @if (in_array(Auth::user()->role, ['admin', 'sub_admin']))
+        <a href="{{ route('dashboard') }}" class="nav-link active">
+    @else
+        <a href="{{ url('sales-coordinator/dashboard') }}" class="nav-link active">
+    @endif
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Dashboard</p>
+    </a>
+</li>
 
                     @if (Auth::user()->role === 'admin')
                         <li class="nav-item">
@@ -45,6 +69,10 @@
                                 </p>
                             </a>
                         </li>
+                        @endif
+
+                        <!-- start Sirf yeh link show krwani hy sales coordinator ko taky woh all agent sales report dekh sky -->
+                        @if (in_array(Auth::user()->role, ['admin', 'sales coordinator']))
                         <li class="nav-item">
                             <a href="{{ route('viewAgentSaleTable') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-dollar-sign"></i>
@@ -53,6 +81,9 @@
                                 </p>
                             </a>
                         </li>
+                        @endif
+
+                        @if (Auth::user()->role === 'admin')
                         <li class="nav-item">
                             <a href="{{ route('viewMacExpiryData') }}" class="nav-link">
                                 <i class="nav-icon fa-solid fa-exclamation"></i>
@@ -62,6 +93,10 @@
                             </a>
                         </li>
                     @endif
+                    
+                    {{--  Start All Link Hide From Sales Coordinator --}}
+
+                  @if (Auth::user()->role !== 'sales coordinator')
                     <li class="nav-item">
                         <a href="{{ route('viewAgentTrialTable') }}" class="nav-link">
                             <i class="nav-icon far fa-image"></i>
@@ -96,6 +131,10 @@
                             </p>
                         </a>
                     </li>
+
+                    @endif
+
+                    {{--  End Hide All Link From Sales Coordinator --}}
 
                     @if (Auth::user()->role === 'admin')
                         <li class="nav-item">
@@ -240,7 +279,8 @@
                         <!-- End Old Number Regional Links -->
                     @endif
 
-                    @if (Auth::user()->role === 'admin')
+                       <!-- Just Show this link on both admin or sales coordinator   -->
+                    @if (in_array(Auth::user()->role, ['admin', 'sales coordinator']))
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fa-solid fa-gear"></i>
@@ -257,9 +297,26 @@
                                         <p>Import Data</p>
                                     </a>
                                 </li>
+                                <!-- NEW: Expired Data Link Added Here -->
+                                 <li class="nav-item">
+                                    <a href="{{ route('support.expired') }}" class="nav-link">
+                                        <i class="nav-icon fa-solid fa-clock-rotate-left"></i>
+                                        <p>Expired Supports</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     @endif
+
+                    @if (Auth::user()->role === 'admin')
+                    <li class="nav-item">
+                        <a href="{{ route('salesCoordinatorReports') }}" class="nav-link">
+                            <i class="nav-icon fa-regular fa-user"></i>
+                            <p>Sales Coordinator Reports</p>
+                        </a>
+                    </li>
+                    @endif
+
                     @if (Auth::user()->role === 'admin')
                         <li class="nav-item">
                             <a href="#" class="nav-link">

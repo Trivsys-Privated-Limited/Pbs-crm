@@ -496,11 +496,12 @@ class CustomerController extends Controller
     }
         */
 
+/*
     public function supportNumbers()
 {
     $supportNumbers = support::where('show_status', 'Sale')
         ->where(function($query) {
-            $query->whereNotIn('status', ['Satisfied', 'Non Satisfied'])
+            $query->whereNotIn('status', ['Satisfied', 'Non Satisfied', 'Not Answering', 'Call me Back'])
                   ->orWhereNull('status');
         })
         ->paginate(100);
@@ -508,18 +509,77 @@ class CustomerController extends Controller
     return view('front.support_number', compact('supportNumbers'));
 }
 
+*/
 
+//////////// New Latest Code Har Support role waly ho apna hee data show hoga /////
+
+public function supportNumbers()
+    {
+        $query = support::where('show_status', 'Sale')
+            ->where(function($query) {
+                $query->whereNotIn('status', ['Satisfied', 'Non Satisfied', 'Not Answering', 'Call me Back'])
+                      ->orWhereNull('status');
+            });
+            
+        // Agr User support wala hy, to sirf apna data dekhy, Admin sabka dekh skta hy
+        if(Auth::user()->role == 'Support' || Auth::user()->role == 'support'){
+            $query->where('assigned_to', Auth::id());
+        }
+
+        $supportNumbers = $query->paginate(100);
+        return view('front.support_number', compact('supportNumbers'));
+    }
+
+    public function satisfiedNumbers()
+    {
+        $query = support::where('show_status', 'Sale')->where('status', 'Satisfied');
+        if(Auth::user()->role == 'Support' || Auth::user()->role == 'support') $query->where('assigned_to', Auth::id());
+        $supportNumbers = $query->paginate(100);
+        return view('front.satisfied_number', compact('supportNumbers'));
+    }
+
+    public function nonSatisfiedNumbers()
+    {
+        $query = support::where('show_status', 'Sale')->where('status', 'Non Satisfied');
+        if(Auth::user()->role == 'Support' || Auth::user()->role == 'support') $query->where('assigned_to', Auth::id());
+        $supportNumbers = $query->paginate(100);
+        return view('front.non_satisfied_number', compact('supportNumbers'));
+    }
+
+    public function notAnsweringNumbers()
+    {
+        $query = support::where('show_status', 'Sale')->where('status', 'Not Answering');
+        if(Auth::user()->role == 'Support' || Auth::user()->role == 'support') $query->where('assigned_to', Auth::id());
+        $supportNumbers = $query->paginate(100);
+        return view('front.not_answering_number', compact('supportNumbers'));
+    }
+
+    public function callMeBackNumbers()
+    {
+        $query = support::where('show_status', 'Sale')->where('status', 'Call me Back');
+        if(Auth::user()->role == 'Support' || Auth::user()->role == 'support') $query->where('assigned_to', Auth::id());
+        $supportNumbers = $query->paginate(100);
+        return view('front.call_me_back_number', compact('supportNumbers'));
+    }
+
+//// End New Code //////////
+
+   /*     
     public function daniyalNumbers()
     {
         $supportNumbers = support::where('show_status', 'D')->paginate(100);
         return view('front.daniyal_number', compact('supportNumbers'));
     }
+        */
+
+    /*
 
     public function saadNumbers()
     {
         $supportNumbers = support::where('show_status', 'B')->paginate(100);
         return view('front.saad_number', compact('supportNumbers'));
     }
+    */
 
     /*
     public function storeSupportNumber(Request $req, string $id)
@@ -586,6 +646,7 @@ public function storeSupportNumber(Request $req, string $id)
 }
 
 // Satisfied Numbers List
+/*
 public function satisfiedNumbers()
 {
     $supportNumbers = support::where('show_status', 'Sale')
@@ -594,8 +655,10 @@ public function satisfiedNumbers()
 
     return view('front.satisfied_number', compact('supportNumbers'));
 }
+    */
 
 // Non Satisfied Numbers List
+/*
 public function nonSatisfiedNumbers()
 {
     $supportNumbers = support::where('show_status', 'Sale')
@@ -604,6 +667,31 @@ public function nonSatisfiedNumbers()
 
     return view('front.non_satisfied_number', compact('supportNumbers'));
 }
+    */
 
+// Not Answering Numbers List
+/*
+    public function notAnsweringNumbers()
+    {
+        $supportNumbers = support::where('show_status', 'Sale')
+            ->where('status', 'Not Answering')
+            ->paginate(100);
+
+        return view('front.not_answering_number', compact('supportNumbers'));
+    }
+        */
+
+
+    // Call Me Back Numbers List
+    /*
+    public function callMeBackNumbers()
+    {
+        $supportNumbers = support::where('show_status', 'Sale')
+            ->where('status', 'Call me Back')
+            ->paginate(100);
+
+        return view('front.call_me_back_number', compact('supportNumbers'));
+    }
+        */
 
 }

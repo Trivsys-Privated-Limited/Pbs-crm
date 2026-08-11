@@ -184,6 +184,11 @@ class dashboardController extends Controller
         $totalUkNumbers = client_number::where('region','uk')->count() + old_number::where('region', 'uk')->count() + customerNumber::where('region', 'uk')->count();
         $totalAusNumbers = client_number::where('region','aus')->count() + old_number::where('region', 'aus')->count() + customerNumber::where('region', 'aus')->count();
 
+// Admin Dashboard Py Sales Coordinator Assign Count  //
+       /* $todayCoordinatorAssignCount = \App\Models\support::where('assigned_by_role', 'sales coordinator')
+    ->whereDate('assigned_date', now()->toDateString())
+    ->count(); */
+
         // --- NEW SEARCH LOGIC (Separate & Independent) --- //
         $searchResultsLeads = collect();
         $searchResultsSales = collect();
@@ -300,6 +305,7 @@ class dashboardController extends Controller
             'searchResultsPendingSales', // <-- NAYA ADD HUA
             'searchResultsTrials',   // <-- NAYA ADD HUA
             'searchResultsNumbers'   // <-- NAYA ADD HUA
+            //'todayCoordinatorAssignCount'  /// <-- New Add kiya hy todayCoordinatorAssignCount krwany ky liye.
         ]));
     }
 
@@ -1788,5 +1794,81 @@ public function storeDistributedOldNumbersByRegion(Request $req, $region)
 }
 
 /// End Region Wise Old Numbers  Code Logic //////
+
+////////// Start Sales Coordinator Reports Code Logic //////////
+/*
+public function salesCoordinatorReports(Request $request)
+{
+    // Sales Coordinator dwara assign aur re-assign kiya gaya tamaam Support data
+    $query = \App\Models\support::where('assigned_by_role', 'sales coordinator');
+
+    // Filter by Date (optional search)
+    if ($request->has('date') && !empty($request->date)) {
+        $query->whereDate('assigned_date', $request->date);
+    }
+
+    $coordinatorData = $query->orderBy('id', 'desc')->paginate(50);
+
+    // Summary Statistics
+    $totalAssigned = \App\Models\support::where('assigned_by_role', 'sales coordinator')->count();
+
+    // Kis Support Role / Category ko kitna data mila
+    $bySupportRole = \App\Models\support::where('assigned_by_role', 'sales coordinator')
+        ->select('show_status', \DB::raw('count(*) as total'))
+        ->groupBy('show_status')
+        ->get();
+
+    // Kis Agent ko kitna data assign hua
+    $byAgent = \App\Models\support::where('assigned_by_role', 'sales coordinator')
+        ->select('agent_name', \DB::raw('count(*) as total'))
+        ->groupBy('agent_name')
+        ->get();
+
+    return view('admin.sales_coordinator_report', compact(
+        'coordinatorData',
+        'totalAssigned',
+        'bySupportRole',
+        'byAgent'
+    ));
+}
+    */
+
+public function salesCoordinatorReports(Request $request)
+{
+    // 1. Data Query (Users table ko join kiya taake support agent ka naam mil sake)
+    $query = \App\Models\support::select('supports.*', 'users.name as support_person_name')
+        ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
+        ->where('supports.assigned_by_role', 'sales coordinator');
+
+    // Filter by Date
+    if ($request->has('date') && !empty($request->date)) {
+        $query->whereDate('supports.assigned_date', $request->date);
+    }
+
+    $coordinatorData = $query->orderBy('supports.id', 'desc')->paginate(50);
+
+    // 2. Total Assignments Summary
+    $totalAssigned = \App\Models\support::where('assigned_by_role', 'sales coordinator')->count();
+
+    // 3. Kis Support Team (User) ko kitna data assign kiya gaya?
+    $bySupportTeam = \App\Models\support::select('users.name as support_person_name', \DB::raw('count(supports.id) as total'))
+        ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
+        ->where('supports.assigned_by_role', 'sales coordinator')
+        ->groupBy('users.name')
+        ->get();
+
+    // 4. Activity Status Summary (Admin check kar sake ga ke assigned leads ka abhi kya status hai)
+    $byStatus = \App\Models\support::select('status', \DB::raw('count(id) as total'))
+        ->where('assigned_by_role', 'sales coordinator')
+        ->groupBy('status')
+        ->get();
+
+    return view('admin.sales_coordinator_report', compact(
+        'coordinatorData',
+        'totalAssigned',
+        'bySupportTeam',
+        'byStatus'
+    ));
+}
 
 }
