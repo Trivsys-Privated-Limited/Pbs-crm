@@ -1907,7 +1907,7 @@ public function salesCoordinatorReports(Request $request)
 
         $coordinatorData = $query->orderBy('supports.assigned_date', 'desc')->paginate(50);
 
-        return view('admin.sales_coordinator_Report', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
+        return view('admin.sales_coordinator_report', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
     }
 
     // 2. Admin Assigned Reports
