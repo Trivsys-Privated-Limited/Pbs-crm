@@ -15,6 +15,7 @@ use App\Models\User as user; // Is se small 'user' bhi kaam karega
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth; // <-- YEH LINE ADD KAREIN
 
 class dashboardController extends Controller
 {
@@ -1832,7 +1833,7 @@ public function salesCoordinatorReports(Request $request)
     ));
 }
     */
-
+/*
 public function salesCoordinatorReports(Request $request)
 {
     // 1. Data Query (Users table ko join kiya taake support agent ka naam mil sake)
@@ -1870,5 +1871,76 @@ public function salesCoordinatorReports(Request $request)
         'byStatus'
     ));
 }
+    */
+
+
+// 1. Sales Coordinator Reports
+   // 1. Sales Coordinator Reports
+    public function salesCoordinatorReports(Request $request)
+    {
+        $query = \App\Models\support::select('supports.*', 'users.name as support_person_name')
+            ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
+            ->whereNotNull('supports.assigned_to');
+
+        if (Auth::user()->role === 'sales coordinator') {
+            $query->where('supports.assigned_by_name', Auth::user()->name);
+        } else {
+            $query->where('supports.assigned_by_role', 'sales coordinator');
+        }
+
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('supports.assigned_date', $request->date);
+        }
+
+        $totalAssigned = (clone $query)->count();
+
+        // Support Team Summary Card (Grouped by Support Person Name)
+        $bySupportTeam = (clone $query)
+            ->select('users.name as support_person_name', \DB::raw('count(supports.id) as total'))
+            ->groupBy('users.name')
+            ->get();
+
+        $byStatus = (clone $query)
+            ->select('supports.status', \DB::raw('count(supports.id) as total'))
+            ->groupBy('supports.status')
+            ->get();
+
+        $coordinatorData = $query->orderBy('supports.assigned_date', 'desc')->paginate(50);
+
+        return view('admin.sales_coordinator_Report', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
+    }
+
+    // 2. Admin Assigned Reports
+    public function adminAssignedReports(Request $request)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized Access');
+        }
+
+        $query = \App\Models\support::select('supports.*', 'users.name as support_person_name')
+            ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
+            ->whereNotNull('supports.assigned_to')
+            ->where('supports.assigned_by_role', 'admin');
+
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('supports.assigned_date', $request->date);
+        }
+
+        $totalAssigned = (clone $query)->count();
+
+        $bySupportTeam = (clone $query)
+            ->select('users.name as support_person_name', \DB::raw('count(supports.id) as total'))
+            ->groupBy('users.name')
+            ->get();
+
+        $byStatus = (clone $query)
+            ->select('supports.status', \DB::raw('count(supports.id) as total'))
+            ->groupBy('supports.status')
+            ->get();
+
+        $coordinatorData = $query->orderBy('supports.assigned_date', 'desc')->paginate(50);
+
+        return view('admin.adminAssignedReports', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
+    }
 
 }

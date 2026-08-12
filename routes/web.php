@@ -117,8 +117,9 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/dashboard/all-leave-recode', 'viewAllLeaveRecode')->name('viewAllLeaveRecode')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/{id}/viewRenewalpage', 'viewRenewalpage')->name('viewRenewalpage')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/notServiceNumber', 'notServiceNumber')->name('notServiceNumber')->middleware(validUser::class)->middleware(validRole::class);
-        /// Sales Coordinator Report Route ///
-        Route::get('/dashboard/sales-coordinator-reports', [dashboardController::class, 'salesCoordinatorReports'])->name('salesCoordinatorReports')->middleware(validUser::class)->middleware(validRole::class);
+        /// Sales Coordinator & Admin Report Routes ///
+        Route::get('/dashboard/sales-coordinator-reports', 'salesCoordinatorReports')->name('salesCoordinatorReports')->middleware(validUser::class)->middleware(validRole::class);
+        Route::get('/dashboard/admin-assigned-reports', 'adminAssignedReports')->name('adminAssignedReports')->middleware(validUser::class)->middleware(validRole::class);
     });
 
     Route::controller(userController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {

@@ -308,15 +308,34 @@
                         </li>
                     @endif
 
-                    @if (Auth::user()->role === 'admin')
+                       <!-- new links add -->
+
+                       <!-- Sales Coordinator Link (Sirf Sales Coordinator Ko Dikhne Ke Liye) -->
+                    @if (Auth::user()->role === 'sales coordinator')
                     <li class="nav-item">
                         <a href="{{ route('salesCoordinatorReports') }}" class="nav-link">
-                            <i class="nav-icon fa-regular fa-user"></i>
-                            <p>Sales Coordinator Reports</p>
+                            <i class="nav-icon fa-regular fa-chart-bar"></i>
+                            <p>My Assigned Reports</p>
                         </a>
                     </li>
                     @endif
 
+                    <!-- Admin Links (Admin Ko Dono Link Dikhne Ke Liye) -->
+                    @if (Auth::user()->role === 'admin')
+                    <li class="nav-item">
+                        <a href="{{ route('salesCoordinatorReports') }}" class="nav-link">
+                            <i class="nav-icon fa-solid fa-users-gear"></i>
+                            <p>Sales Coordinator Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('adminAssignedReports') }}" class="nav-link">
+                            <i class="nav-icon fa-solid fa-user-shield"></i>
+                            <p>My Admin Reports</p>
+                        </a>
+                    </li>
+                    @endif
+                    <!-- new links add end -->
                     @if (Auth::user()->role === 'admin')
                         <li class="nav-item">
                             <a href="#" class="nav-link">
