@@ -164,6 +164,8 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
     Route::controller(SupportController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
         Route::get('/dashboard/import', 'index')->name('support.import');
         Route::post('/dashboard/import', 'store')->name('support.import.store');
+        // Support routes ke andar yeh line add karein
+Route::post('/support/count-excel-rows', [App\Http\Controllers\SupportController::class, 'countExcelRows'])->name('support.countExcelRows');
         Route::post('/dashboard/reassign-multiple-supports', 'reassignMultipleSupportData')->name('support.reassign.multiple');
         // Expired & Re-assign Routes
         Route::get('/dashboard/expired-supports', 'expiredSupportData')->name('support.expired');

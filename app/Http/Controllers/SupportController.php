@@ -22,7 +22,7 @@ class SupportController extends Controller
     }
 
     // 2. Excel File Import Karne Ke Liye
-    public function store(Request $request)
+   /* public function store(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv,txt',
@@ -33,6 +33,44 @@ class SupportController extends Controller
         Excel::import(new supportImport($request->expiry_date, $request->assigned_to), $request->file('file'));
 
         return redirect()->back()->with('success', 'Excel file imported and assigned successfully!');
+    }
+        */
+    
+
+    // File choose import py count hoga data kitna hy iss sheet file ma. 
+
+    public function countExcelRows(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            // Excel file ko array mein convert karein
+            $data = Excel::toArray([], $request->file('file'));
+            
+            // Sheet 1 ka data count karein (1st row heading hoti hai isliye -1 kiya)
+            $totalRows = count($data[0]) - 2; 
+            
+            return response()->json(['success' => true, 'count' => $totalRows]);
+        }
+        return response()->json(['success' => false, 'count' => 0]);
+    }
+
+    // 2. Apne purane store method ko is se replace karein
+    public function store(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv,txt',
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+            'import_limit' => 'nullable|integer|min:1' // Naya field add kiya limit ke liye
+        ]);
+
+        // Import class mein expiry_date, assigned_to aur limit pass karein
+        Excel::import(new supportImport(
+            $request->expiry_date, 
+            $request->assigned_to, 
+            $request->import_limit // Custom number jo admin ne form mein dala
+        ), $request->file('file'));
+
+        return redirect()->back()->with('success', 'Excel file imported successfully without duplicates!');
     }
 
     // 3. Expired Data Ko Find Karna
