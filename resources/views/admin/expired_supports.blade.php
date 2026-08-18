@@ -91,8 +91,12 @@
             </form>
             <!-- Multiple Selection Form End -->
 
-            <div class="mt-3">
+            <!-- <div class="mt-3">
                 {{ $expiredSupports->links() }}
+            </div> -->
+          <!-- Fixed Pagination Wrapper -->
+            <div class="mt-3 d-flex justify-content-center">
+                {{ $expiredSupports->appends(request()->query())->links('pagination::bootstrap-4') }}
             </div>
 
         </div>

@@ -92,7 +92,7 @@ class SupportController extends Controller
             $data->delete();
         }
 
-        $expiredSupports = ExpiredSupport::orderBy('id', 'desc')->paginate(100);
+        $expiredSupports = ExpiredSupport::orderBy('id', 'desc')->paginate(50);
         $supportUsers = User::where('role', 'Support')->orWhere('role', 'support')->get(); // Dropdown ky liye
 
         return view('admin.expired_supports', compact('expiredSupports', 'supportUsers'));
