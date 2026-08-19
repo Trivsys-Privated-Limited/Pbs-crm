@@ -170,6 +170,8 @@ Route::post('/support/count-excel-rows', [App\Http\Controllers\SupportController
         // Expired & Re-assign Routes
         Route::get('/dashboard/expired-supports', 'expiredSupportData')->name('support.expired');
         Route::post('/dashboard/reassign-support/{id}', 'reassignSupportData')->name('support.reassign');
+        // Limit ky sath expiry number support ko re-assign krny ka route
+        Route::post('/dashboard/reassign-limit-supports', 'reassignLimitSupportData')->name('support.reassign.limit');
        /* Route::get('/edit-support-number/{id}', 'editSupportNumber')->name('editSupportNumber');
         Route::post('/support-number/{id}', 'storeSupportNumber')->name('storeSupportNumber');*/
     });

@@ -163,4 +163,89 @@ class SupportController extends Controller
 
         return back()->with('success', $assignedCount . ' Customers successfully re-assigned!');
     }
+    // Limit ky sath expiry number support ko re-assign krny ka function
+    
+    /*public function reassignLimitSupportData(Request $request) 
+    {
+        $request->validate([
+            'limit_count' => 'required|integer|min:1',
+            'new_expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+        ]);
+        // Limit Quantity ke Mutabiq top records nikalna 
+        $expiredRecords = ExpiredSupport::orderBy('id','asc')->take((int)$request->limit_count)->get();
+
+        if ($expiredRecords->isEmpty()) {
+            return back()->with('error','No Expired Numbers Data Available to Re-assign to Support Team');
+        }
+        $assignedCount = 0;
+
+        foreach($expiredRecords as $expiredRecord) {
+            $existsInSupport = support::where('number', $expiredRecord->number)->exists();
+            if (!$existsInSupport) {
+                support::create([
+                    'name' => $expiredRecord->name,
+                    'number' => $expiredRecord->number,
+                    'agent_name' => $expiredRecord->agent_name,
+                    'expiry_date' => $expiredRecord->expiry_date,
+                    'show_status' => $expiredRecord->show_status,
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date' => now()->toDateString(),
+                    'assigned_to' => $request->assigned_to,
+                ]);
+
+                $expiredRecord->delete();
+                $assignedCount++;
+            }
+            else {
+                // Agar number active support mein pehle se ho to duplicate clean kar dein
+                $expiredRecord->delete();
+            }
+        }
+        return back()->with('success', 'Selected Number Re-assigned to Support Team with Limit Quantity');
+
+    }*/
+            public function reassignLimitSupportData(Request $request) 
+    {
+        $request->validate([
+            'limit_count' => 'required|integer|min:1',
+            'new_expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+        ]);
+        // Limit Quantity ke Mutabiq top records nikalna 
+        $expiredRecords = ExpiredSupport::orderBy('id','asc')->take((int)$request->limit_count)->get();
+
+        if ($expiredRecords->isEmpty()) {
+            return back()->with('error','No Expired Numbers Data Available to Re-assign to Support Team');
+        }
+        $assignedCount = 0;
+
+        foreach($expiredRecords as $expiredRecord) {
+            $existsInSupport = support::where('number', $expiredRecord->number)->exists();
+            if (!$existsInSupport) {
+                support::create([
+                    'name' => $expiredRecord->name,
+                    'number' => $expiredRecord->number,
+                    'agent_name' => $expiredRecord->agent_name,
+                    'expiry_date' => $request->new_expiry_date, // <--- FIX: Yahan $request->new_expiry_date use karein
+                    'show_status' => $expiredRecord->show_status,
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date' => now()->toDateString(),
+                    'assigned_to' => $request->assigned_to,
+                ]);
+
+                $expiredRecord->delete();
+                $assignedCount++;
+            }
+            else {
+                // Agar number active support mein pehle se ho to duplicate clean kar dein
+                $expiredRecord->delete();
+            }
+        }
+        return back()->with('success', $assignedCount . ' Customer Numbers Re-assigned to Support Team Successfully');
+    }
+
+    
 }

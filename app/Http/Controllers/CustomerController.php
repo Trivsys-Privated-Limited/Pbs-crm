@@ -641,8 +641,16 @@ public function storeSupportNumber(Request $req, string $id)
     $support->status  = $req->status;
     $support->save();
 
-    // Support numbers ki list wale route par redirect karein
-    return redirect()->route('supportNumbers')->with('success', 'Support Number Updated Successfully');
+    // Agar Request AJAX ke zariye ayi ho
+    if ($req->wantsJson() || $req->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Support Number Updated Successfully'
+        ]);
+    }
+
+  // Form update hone ke baad Support Numbers list page par redirect karega
+return redirect()->route('supportNumbers')->with('success', 'Support Number Updated Successfully');
 }
 
 // Satisfied Numbers List

@@ -1891,6 +1891,15 @@ public function salesCoordinatorReports(Request $request)
         if ($request->has('date') && !empty($request->date)) {
             $query->whereDate('supports.assigned_date', $request->date);
         }
+        // Naya Status Filter Logic Add Karein
+    if ($request->has('status_filter') && $request->status_filter != '') {
+        if ($request->status_filter == 'pending') {
+            // Pending ka matlab hai jahan status NULL ya empty ho
+            $query->whereNull('status');
+        } else {
+            $query->where('status', $request->status_filter);
+        }
+    }
 
         $totalAssigned = (clone $query)->count();
 
@@ -1925,6 +1934,15 @@ public function salesCoordinatorReports(Request $request)
         if ($request->has('date') && !empty($request->date)) {
             $query->whereDate('supports.assigned_date', $request->date);
         }
+        // Naya Status Filter Logic Add Karein
+    if ($request->has('status_filter') && $request->status_filter != '') {
+        if ($request->status_filter == 'pending') {
+            // Pending ka matlab hai jahan status NULL ya empty ho
+            $query->whereNull('status');
+        } else {
+            $query->where('status', $request->status_filter);
+        }
+    }
 
         $totalAssigned = (clone $query)->count();
 
