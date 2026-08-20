@@ -24,7 +24,8 @@ class EmployeController extends Controller
 
     public function create()
     {
-        $getAllUsers = User::where('role', 'user')->get();
+       // $getAllUsers = User::where('role', 'user')->get();
+        $getAllUsers = User::whereIn('role', ['user', 'support', 'Support'])->get();
         return view('admin.hr.employee.add_employee', compact('getAllUsers'));
     }
 
@@ -161,7 +162,8 @@ class EmployeController extends Controller
     public function edit($id)
     {
         $employee    = employe::with('user')->findOrFail($id);
-        $getAllUsers = User::where('role', 'user')->get();
+       // $getAllUsers = User::where('role', 'user')->get();
+       $getAllUsers = User::whereIn('role', ['user', 'support', 'Support'])->get();
         return view('admin.hr.employee.edit_employee', compact('employee', 'getAllUsers'));
     }
 
