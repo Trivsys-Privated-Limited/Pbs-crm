@@ -227,9 +227,9 @@
                 @endif
             </td> -->
             <!-- Table Action Column -->
-<td>
+<!-- <td>
     @if(empty($row->status))
-        <!-- Button Click karne par Popup Khulega -->
+        // Button Click karne par Popup Khulega 
        <button type="button" 
         class="btn btn-sm btn-info text-white edit-support-btn" 
         data-toggle="modal" 
@@ -245,6 +245,20 @@
     @else
         <span class="text-muted"><i class="fas fa-check-circle"></i> Updated</span>
     @endif
+</td> -->
+<td>
+    <!-- Button Click karne par Popup Khulega (Condition Hata Di Gayi Hai) -->
+    <button type="button" 
+        class="btn btn-sm btn-info text-white edit-support-btn" 
+        data-toggle="modal" 
+        data-target="#editSupportModal"
+        data-bs-toggle="modal" 
+        data-bs-target="#editSupportModal"
+        data-id="{{ $row->id }}" 
+        data-remarks="{{ $row->remarks }}" 
+        data-status="{{ $row->status }}">
+        <i class="fas fa-edit"></i> Edit
+    </button>
 </td>
                                 </tr>
                             @empty
