@@ -10,6 +10,8 @@ use App\Models\User; // User model add kiya
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
+use App\Models\customer;
+use App\Models\oldCustomer;
 
 class SupportController extends Controller
 {
@@ -247,5 +249,321 @@ class SupportController extends Controller
         return back()->with('success', $assignedCount . ' Customer Numbers Re-assigned to Support Team Successfully');
     }
 
-    
+    // View the form and count total agent sales
+    public function viewSendSalesToSupportForm($agent_id)
+    {
+        $agent = User::findOrFail($agent_id);
+        
+        // Count sales from both tables
+        $oldSalesCount = customer::where('a_name', $agent_id)->where('status', 'sale')->count();
+        $newSalesCount = oldCustomer::where('agent', $agent_id)->where('status', 'sale')->count();
+        $totalSales = $oldSalesCount + $newSalesCount;
+
+        // Fetch support users for the assignment dropdown
+        $supportUsers = User::whereIn('role', ['Support', 'support'])->get();
+
+        return view('admin.send_sales_to_support', compact('agent', 'totalSales', 'supportUsers'));
+    }
+
+    // Safely copy data to the Support table
+  /*  public function sendSalesToSupport(Request $request, $agent_id)
+    {
+        $request->validate([
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+        ]);
+
+        $agent = User::findOrFail($agent_id);
+
+        // Fetch all sales records for this agent
+        $oldSales = customer::where('a_name', $agent_id)->where('status', 'sale')->get();
+        $newSales = oldCustomer::where('agent', $agent_id)->where('status', 'sale')->get();
+        
+        $allSales = $oldSales->merge($newSales);
+        $copiedCount = 0;
+        $duplicateCount = 0;
+
+        foreach ($allSales as $sale) {
+            $number = $sale->customer_number;
+            
+            // Check for duplicates in both active support and expired support tables
+            $existsInSupport = support::where('number', $number)->exists();
+            $existsInExpired = ExpiredSupport::where('number', $number)->exists();
+
+            if (!$existsInSupport && (!$existsInExpired)) {
+                // Copy data to support, keeping the original sale safe
+                support::create([
+                    'name'             => $sale->customer_name,
+                    'number'           => $number,
+                    'agent_name'       => $agent->name,
+                    'expiry_date'      => $request->expiry_date,
+                    'show_status'      => 'Sale',
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date'    => now()->toDateString(),
+                    'assigned_to'      => $request->assigned_to,
+                ]);
+                $copiedCount++;
+            } else {
+                $duplicateCount++;
+            }
+        }
+
+        return redirect()->route('viewAgentSaleTable')->with('success', "{$copiedCount} Sales successfully copied to Support. {$duplicateCount} duplicates were skipped. Original sales records remain untouched.");
+    } */
+
+        // Safely copy data to the Support table with a specific limit
+   /* public function sendSalesToSupport(Request $request, $agent_id)
+    {
+        $request->validate([
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+            'limit'       => 'required|integer|min:1',
+        ]);
+
+        $agent = User::findOrFail($agent_id);
+
+        // Fetch all sales records for this agent from both tables
+        $oldSales = customer::where('a_name', $agent_id)->where('status', 'sale')->get();
+        $newSales = oldCustomer::where('agent', $agent_id)->where('status', 'sale')->get();
+        
+        // Merge them and apply the user-defined limit
+        $allSales = $oldSales->merge($newSales)->take($request->limit);
+        
+        $copiedCount = 0;
+        $duplicateCount = 0;
+
+        foreach ($allSales as $sale) {
+            $number = $sale->customer_number;
+            
+            // Check for duplicates in both active support and expired support tables
+            $existsInSupport = support::where('number', $number)->exists();
+            $existsInExpired = ExpiredSupport::where('number', $number)->exists();
+
+            if (!$existsInSupport && (!$existsInExpired)) {
+                // Copy data to support, keeping the original sale safe
+                support::create([
+                    'name'             => $sale->customer_name,
+                    'number'           => $number,
+                    'agent_name'       => $agent->name,
+                    'expiry_date'      => $request->expiry_date,
+                    'show_status'      => 'Sale',
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date'    => now()->toDateString(),
+                    'assigned_to'      => $request->assigned_to,
+                ]);
+                $copiedCount++;
+            } else {
+                $duplicateCount++;
+            }
+        }
+
+        return redirect()->route('viewAgentSaleTable')->with('success', "{$copiedCount} Sales successfully copied to Support based on your limit. {$duplicateCount} duplicates were skipped.");
+    } */
+
+        // same function but some change added //
+
+        // Safely copy data to the Support table with a specific limit
+    public function sendSalesToSupport(Request $request, $agent_id)
+    {
+        $request->validate([
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+            'limit'       => 'required|integer|min:1',
+        ]);
+
+        $agent = User::findOrFail($agent_id);
+
+        // 1. Get all numbers already present in both support and expired_support tables
+        $existingSupportNumbers = support::pluck('number')->toArray();
+        $existingExpiredNumbers = ExpiredSupport::pluck('number')->toArray();
+        $allExistingNumbers = array_merge($existingSupportNumbers, $existingExpiredNumbers);
+
+        // 2. Fetch sales records excluding the numbers that are already in support/expired_support
+       /* $oldSales = customer::where('a_name', $agent_id)
+                            ->where('status', 'sale')
+                            ->whereNotIn('customer_number', $allExistingNumbers)
+                            ->get();
+
+        $newSales = oldCustomer::where('agent', $agent_id)
+                               ->where('status', 'sale')
+                               ->whereNotIn('customer_number', $allExistingNumbers)
+                               ->get(); */
+
+        // new one add for testing
+        // 2. Fetch sales records with memory-efficient limit logic
+        $requestedLimit = (int) $request->limit;
+
+        $oldSales = customer::where('a_name', $agent_id)
+                            ->where('status', 'sale')
+                            ->whereNotIn('customer_number', $allExistingNumbers)
+                            ->take($requestedLimit)
+                            ->get();
+
+        $remainingLimit = $requestedLimit - $oldSales->count();
+
+        if ($remainingLimit > 0) {
+            $newSales = oldCustomer::where('agent', $agent_id)
+                                   ->where('status', 'sale')
+                                   ->whereNotIn('customer_number', $allExistingNumbers)
+                                   ->take($remainingLimit)
+                                   ->get();
+        } else {
+            $newSales = collect([]);
+        }
+        
+        // 3. Merge them
+        $allSales = $oldSales->merge($newSales);
+
+        // end here //
+        
+        // 3. Merge them and apply the limit. Now it will only take fresh sales.
+       // $allSales = $oldSales->merge($newSales)->take($request->limit);
+        
+        $copiedCount = 0;
+        $duplicateCount = 0;
+
+        foreach ($allSales as $sale) {
+            $number = $sale->customer_number;
+            
+            // Optional double-check before inserting
+            $existsInSupport = support::where('number', $number)->exists();
+            $existsInExpired = ExpiredSupport::where('number', $number)->exists();
+
+            if (!$existsInSupport && !$existsInExpired) {
+                // Copy data to support, keeping the original sale safe
+                support::create([
+                    'name'             => $sale->customer_name,
+                    'number'           => $number,
+                    'agent_name'       => $agent->name,
+                    'expiry_date'      => $request->expiry_date,
+                    'show_status'      => 'Sale',
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date'    => now()->toDateString(),
+                    'assigned_to'      => $request->assigned_to,
+                ]);
+                $copiedCount++;
+            } else {
+                $duplicateCount++;
+            }
+        }
+
+        return redirect()->route('viewAgentSaleTable')->with('success', "{$copiedCount} Sales successfully copied to Support based on your limit. {$duplicateCount} duplicates were skipped.");
+    }
+
+    // --- NEW FUNCTIONS FOR ALL AGENTS SALES TO SUPPORT --- //
+
+    // 1. View the form and count total global valid sales
+    public function viewSendAllSalesToSupportForm()
+    {
+        // Get all numbers already present in both support and expired_support tables
+        $existingSupportNumbers = support::pluck('number')->toArray();
+        $existingExpiredNumbers = ExpiredSupport::pluck('number')->toArray();
+        $allExistingNumbers = array_merge($existingSupportNumbers, $existingExpiredNumbers);
+
+        // Fetch count of fresh sales excluding the numbers that are already in support/expired_support
+        $oldSalesCount = customer::where('status', 'sale')
+                            ->whereNotIn('customer_number', $allExistingNumbers)
+                            ->count();
+
+        $newSalesCount = oldCustomer::where('status', 'sale')
+                               ->whereNotIn('customer_number', $allExistingNumbers)
+                               ->count();
+        
+        $totalSales = $oldSalesCount + $newSalesCount;
+
+        // Fetch support users for the assignment dropdown
+        $supportUsers = User::whereIn('role', ['Support', 'support'])->get();
+
+        return view('admin.send_all_sales_to_support', compact('totalSales', 'supportUsers'));
+    }
+
+    // 2. Safely copy ALL agents data to the Support table with a limit
+    public function sendAllSalesToSupport(Request $request)
+    {
+        $request->validate([
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+            'limit'       => 'required|integer|min:1',
+        ]);
+
+        $existingSupportNumbers = support::pluck('number')->toArray();
+        $existingExpiredNumbers = ExpiredSupport::pluck('number')->toArray();
+        $allExistingNumbers = array_merge($existingSupportNumbers, $existingExpiredNumbers);
+
+        // Fetch fresh sales (Global) excluding duplicates
+      /*  $oldSales = customer::where('status', 'sale')
+                            ->whereNotIn('customer_number', $allExistingNumbers)
+                            ->get();
+
+        $newSales = oldCustomer::where('status', 'sale')
+                               ->whereNotIn('customer_number', $allExistingNumbers)
+                               ->get(); */
+        
+        // Merge them and apply the user's limit
+      //  $allSales = $oldSales->merge($newSales)->take($request->limit);
+
+    // new add for test purpose //
+      // Fetch fresh sales (Global) with memory-efficient limit logic
+        $requestedLimit = (int) $request->limit;
+
+        $oldSales = customer::where('status', 'sale')
+                            ->whereNotIn('customer_number', $allExistingNumbers)
+                            ->take($requestedLimit)
+                            ->get();
+
+        $remainingLimit = $requestedLimit - $oldSales->count();
+
+        if ($remainingLimit > 0) {
+            $newSales = oldCustomer::where('status', 'sale')
+                                   ->whereNotIn('customer_number', $allExistingNumbers)
+                                   ->take($remainingLimit)
+                                   ->get();
+        } else {
+            $newSales = collect([]);
+        }
+        
+        // Merge them
+        $allSales = $oldSales->merge($newSales);
+
+        // end here //
+        
+        $copiedCount = 0;
+        $duplicateCount = 0;
+
+        foreach ($allSales as $sale) {
+            $number = $sale->customer_number;
+            
+            // Double check for duplicates
+            $existsInSupport = support::where('number', $number)->exists();
+            $existsInExpired = ExpiredSupport::where('number', $number)->exists();
+
+            if (!$existsInSupport && !$existsInExpired) {
+                // Find agent name dynamically
+                $agentId = $sale->a_name ?? $sale->agent;
+                $agentObj = User::find($agentId);
+                $agentName = $agentObj ? $agentObj->name : 'Unknown Agent';
+
+                // Copy data to support safely
+                support::create([
+                    'name'             => $sale->customer_name,
+                    'number'           => $number,
+                    'agent_name'       => $agentName,
+                    'expiry_date'      => $request->expiry_date,
+                    'show_status'      => 'Sale',
+                    'assigned_by_name' => Auth::user()->name,
+                    'assigned_by_role' => Auth::user()->role,
+                    'assigned_date'    => now()->toDateString(),
+                    'assigned_to'      => $request->assigned_to,
+                ]);
+                $copiedCount++;
+            } else {
+                $duplicateCount++;
+            }
+        }
+
+        return redirect()->route('viewAgentSaleTable')->with('success', "{$copiedCount} Global Sales successfully copied to Support based on your limit. {$duplicateCount} duplicates were skipped.");
+    }
 }

@@ -165,13 +165,20 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/dashboard/import', 'index')->name('support.import');
         Route::post('/dashboard/import', 'store')->name('support.import.store');
         // Support routes ke andar yeh line add karein
-Route::post('/support/count-excel-rows', [App\Http\Controllers\SupportController::class, 'countExcelRows'])->name('support.countExcelRows');
+        Route::post('/support/count-excel-rows', [App\Http\Controllers\SupportController::class, 'countExcelRows'])->name('support.countExcelRows');
         Route::post('/dashboard/reassign-multiple-supports', 'reassignMultipleSupportData')->name('support.reassign.multiple');
         // Expired & Re-assign Routes
         Route::get('/dashboard/expired-supports', 'expiredSupportData')->name('support.expired');
         Route::post('/dashboard/reassign-support/{id}', 'reassignSupportData')->name('support.reassign');
         // Limit ky sath expiry number support ko re-assign krny ka route
         Route::post('/dashboard/reassign-limit-supports', 'reassignLimitSupportData')->name('support.reassign.limit');
+        // Add these two lines for Agent Sales to Support 
+        Route::get('/dashboard/{id}/send-sales-support', 'viewSendSalesToSupportForm')->name('support.sendSalesForm');
+        Route::post('/dashboard/{id}/send-sales-support', 'sendSalesToSupport')->name('support.sendSalesToSupport');
+        // --- YEH 2 NAYI ROUTES ADD KAREIN --- //
+        Route::get('/dashboard/send-all-sales-support', 'viewSendAllSalesToSupportForm')->name('support.sendAllSalesForm');
+        Route::post('/dashboard/send-all-sales-support', 'sendAllSalesToSupport')->name('support.sendAllSalesToSupport');
+    // ----------------------------------- //
        /* Route::get('/edit-support-number/{id}', 'editSupportNumber')->name('editSupportNumber');
         Route::post('/support-number/{id}', 'storeSupportNumber')->name('storeSupportNumber');*/
     });

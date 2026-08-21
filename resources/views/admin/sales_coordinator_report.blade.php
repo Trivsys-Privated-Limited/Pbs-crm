@@ -229,9 +229,7 @@
         <i class="fas fa-edit"></i> Edit
     </button>
 </td>
-
-
-                                </tr>
+                     </tr>
                             @empty
                                 <tr>
                                     <td colspan="8" class="text-center text-muted py-4">No Activity Record Found by Sales Coordinator</td>

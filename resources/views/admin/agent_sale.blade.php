@@ -18,7 +18,7 @@
                     @endif
                     <!-- End -->
 
-                    <div class="col-sm-6">
+                  <!--  <div class="col-sm-6">
                         <form action="{{ route('filterSaleByDate') }}" method="get" id="filterbyDateForm">
                             <div class="row">
                                 <div class="col-6">
@@ -33,7 +33,30 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </div> -->
+
+<!-- add new testing for support button -->
+ <div class="col-sm-6">
+    <form action="{{ route('filterSaleByDate') }}" method="get" id="filterbyDateForm">
+        <div class="row">
+            <div class="col-4">
+                <label for="from">From</label>
+                <input type="date" class="form-control" name="from" id="from">
+            </div>
+            <div class="col-4">
+                <label for="to">To</label>
+                <input type="date" class="form-control" name="to" id="to">
+            </div>
+            <!-- Yahan Naya Button Add Kiya Hai -->
+            <div class="col-4 mt-4">
+                <a href="{{ route('support.sendAllSalesForm') }}" class="btn btn-warning w-100 font-weight-bold" title="Copy All Agent Sales to Support">
+                    <i class="fa-solid fa-share-from-square"></i> Send All to Support
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- end here --> 
                 </div>
             </div>
         </div>
@@ -68,6 +91,10 @@
                                                 <a href="{{ route('viewSaleTable', $customer->user_id) }}"
                                                     class="btn btn-primary">
                                                     <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                                <!-- Copy to Support Button -->
+                                                <a href="{{ route('support.sendSalesForm', $customer->user_id) }}" class="btn btn-info">
+                                                    <i class="fa-solid fa-share-from-square"></i> Send to Support
                                                 </a>
                                                 <!-- Just Hide this link From Sales Coordinator -->
                                                 @if(Auth::user()->role !== 'sales coordinator')
