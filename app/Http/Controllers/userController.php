@@ -107,7 +107,7 @@ class userController extends Controller
         'updated_at' => now(),
     ]);
 
-        return redirect()->route('viewUserTable')->with(['success' => 'User Created Successfuly']);
+        return redirect()->route('viewUserTable')->with(['success' => 'User Created Successfully']);
     }
 
     public function viewEditForm(string $id)
@@ -142,14 +142,14 @@ class userController extends Controller
         $user->ip_address = $req->ip;
         $user->save();
 
-        return redirect()->route('viewUserTable')->with(['success' => 'User Updated Successfuly']);
+        return redirect()->route('viewUserTable')->with(['success' => 'User Updated Successfully']);
     }
 
     public function deleteUser(string $id)
     {
         $user = User::find($id);
         $user->delete();
-        return redirect()->route('viewUserTable')->with(['success' => 'User Deleted Successfuly']);
+        return redirect()->route('viewUserTable')->with(['success' => 'User Deleted Successfully']);
     }
 
     public function login()
@@ -351,6 +351,6 @@ class userController extends Controller
         $user->password = Hash::make($req->password);
         $user->save();
 
-        return back()->with(['success' => 'Password Change Successfuly']);
+        return back()->with(['success' => 'Password Change Successfully']);
     }
 }
