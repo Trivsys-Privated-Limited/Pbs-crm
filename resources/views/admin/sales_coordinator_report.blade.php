@@ -144,6 +144,7 @@
                                 <th>Customer Info</th>
                                 <th>Assigned Date</th>
                                 <th>Expiry Date</th>
+                                <th>Remarks</th> <!-- Naya Column Yahan Add Hua -->
                                 <th>Work Status</th>
                                 <th>Action</th> <!-- Naya Column -->
                             </tr>
@@ -174,6 +175,11 @@
                                         <span class="text-danger font-weight-bold">
                                             {{ \Carbon\Carbon::parse($row->expiry_date)->format('d-M-Y') }}
                                         </span>
+                                    </td>
+
+                                    <!-- Naya Remarks Column Yahan Add Hua -->
+                                    <td>
+                                        {{ $row->remarks ?? '-' }}
                                     </td>
                                     
                                     <td>
