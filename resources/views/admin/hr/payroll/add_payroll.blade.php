@@ -38,13 +38,31 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-6 mt-2">
+                                   <div class="col-6 mt-2">
                                         <label for="exampleInputEmail1">Salary Month</label>
                                         <input class="form-control" type="month" name="month" id="formFile">
                                         @error('month')
                                             <span class="text-danger">{{ $message }}</span>
                                         @enderror
-                                    </div>
+                                    </div> 
+                                  <!--  <div class="col-6 mt-2">
+    <label>Select Salary Month</label>
+    <select class="form-control" name="month" required>
+        <option value="">-- Select Month --</option>
+        @for ($i = 0; $i < 12; $i++)
+            @php
+                $m = \Carbon\Carbon::now()->subMonths($i);
+            @endphp
+            <option value="{{ $m->format('Y-m') }}">
+                {{ $m->format('F Y') }}
+            </option>
+        @endfor
+    </select>
+    @error('month')
+        <span class="text-danger">{{ $message }}</span>
+    @enderror
+</div> -->
+
 
                                     <div class="col-6 mt-2 mb-2">
                                         <label for="exampleInputEmail1">Commission</label>

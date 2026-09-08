@@ -45,7 +45,8 @@
                                     <tr>
                                         <td>{{ $serial++ }}</td>
                                         <td>{{ $payroll['user']['name'] }}</td>
-                                        <td>{{ \Carbon\Carbon::createFromFormat('Y-m', $payroll['month'])->format('F Y') }}</td>
+                                       <!-- <td>{{ \Carbon\Carbon::createFromFormat('Y-m', $payroll['month'])->format('F Y') }}</td> -->
+                                        <td>{{ \Carbon\Carbon::parse($payroll['month'])->format('F Y') }}</td>
                                         <td>
                                             <a href="{{ route('payroll.showPayroll', $payroll['id']) }}" class="btn btn-sm btn-primary">View Pay Slip</a>
                                         </td>

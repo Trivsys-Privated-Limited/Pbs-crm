@@ -24,11 +24,22 @@ class PayrollController extends Controller
         return view('admin.hr.payroll.payroll', compact('groupedPayrolls'));
     }
 
-    public function create()
+   /* public function create()
     {
-        $employees = User::where('role', 'user')->get();
+       // $employees = User::where('role', 'user')->get();
+        // 'user' aur 'support' dono roles ke employees fetch hongay
+        $employees = User::whereIn('role', ['user', 'support'])->get();
+        return view('admin.hr.payroll.add_payroll', compact('employees'));
+    } */
+
+            public function create()
+    {
+        // 'user' aur 'support' dono roles ke users fetch honge
+        $employees = User::whereIn('role', ['user', 'support', 'Support'])->get();
         return view('admin.hr.payroll.add_payroll', compact('employees'));
     }
+
+    
 
     public function store(Request $request)
     {
@@ -37,7 +48,7 @@ class PayrollController extends Controller
             'month'       => 'required',
         ]);
 
-        $employeeId = $request->employee_id;
+       /* $employeeId = $request->employee_id;
         $month      = $request->month;
         $commission = (int) ($request->commission ?? 0);
 
@@ -61,7 +72,39 @@ class PayrollController extends Controller
 
         $carbon   = Carbon::createFromFormat('Y-m', $month);
         $year     = $carbon->year;
+        $monthNum = $carbon->month; */
+
+
+        /// testing code 9/8/2026  ///
+
+                $employeeId = $request->employee_id;
+        
+        // Month ko flexibly parse karein taake separation symbol ka error na aaye
+        $carbon   = Carbon::parse($request->month);
+        $month    = $carbon->format('Y-m');
+        $year     = $carbon->year;
         $monthNum = $carbon->month;
+
+        $commission = (int) ($request->commission ?? 0);
+
+        $existingPayroll = payroll::where('employee_id', $employeeId)
+            ->where('month', $month)
+            ->first();
+
+        if ($existingPayroll) {
+            return redirect()->route('payroll.index')
+                ->with('error', "Payroll for this employee for $month is already generated.");
+        }
+
+        $employee = employe::with('user')->where('employe_id', $employeeId)->first();
+
+        if (! $employee) {
+            return back()->with('error', 'Employee not found');
+        }
+
+        $basicSalary = $request->filled('manual_salary') ? (int) $request->manual_salary : (int) $employee->salary;
+        $manualDeduction = $request->filled('manual_deduction') ? (int) $request->manual_deduction : 0;
+
 
         $absentDays      = 0;
         $lateCount       = 0;
