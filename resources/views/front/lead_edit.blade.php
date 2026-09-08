@@ -15,6 +15,14 @@
                     <h2 class="text-xl font-bold text-center mb-2">Update Customer Details</h2>
 
                     <div class="mb-3">
+                    <label for="customerName" class="form-label">Customer Name</label>
+                         <input type="text" class="form-control" name="customer_name" placeholder="Enter Customer Name"
+                             value="{{ $customer->customer_name }}" id="customerName">
+                         @error('customer_name')
+                             <span class="text-danger"> {{ $message }} </span>
+                         @enderror
+                     </div>
+                    <div class="mb-3">
                         <label for="exampleInputPassword1" class="form-label">Price</label>
                         <input type="number" class="form-control" name="price" placeholder="Enter Price"
                             value="{{ $customer->price }}" id="exampleInputPassword1">

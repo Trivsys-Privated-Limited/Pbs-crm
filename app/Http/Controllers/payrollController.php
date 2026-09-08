@@ -30,7 +30,10 @@ class PayrollController extends Controller
         // 'user' aur 'support' dono roles ke employees fetch hongay
         $employees = User::whereIn('role', ['user', 'support'])->get();
         return view('admin.hr.payroll.add_payroll', compact('employees'));
-    } */
+    } */ 
+
+
+        //// testing 9/8/2026 ////
 
             public function create()
     {
@@ -48,7 +51,7 @@ class PayrollController extends Controller
             'month'       => 'required',
         ]);
 
-       /* $employeeId = $request->employee_id;
+     /*   $employeeId = $request->employee_id;
         $month      = $request->month;
         $commission = (int) ($request->commission ?? 0);
 
@@ -77,7 +80,7 @@ class PayrollController extends Controller
 
         /// testing code 9/8/2026  ///
 
-                $employeeId = $request->employee_id;
+        $employeeId = $request->employee_id;
         
         // Month ko flexibly parse karein taake separation symbol ka error na aaye
         $carbon   = Carbon::parse($request->month);
@@ -104,6 +107,7 @@ class PayrollController extends Controller
 
         $basicSalary = $request->filled('manual_salary') ? (int) $request->manual_salary : (int) $employee->salary;
         $manualDeduction = $request->filled('manual_deduction') ? (int) $request->manual_deduction : 0;
+        
 
 
         $absentDays      = 0;
@@ -131,7 +135,7 @@ class PayrollController extends Controller
 
         $advanceDeduction = $this->handleAdvance($employeeId, $month);
 
-        $netSalary =
+            $netSalary =
             $basicSalary
              + $commission
              - $absentDeduction

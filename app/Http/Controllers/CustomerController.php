@@ -349,12 +349,15 @@ class CustomerController extends Controller
     public function storeUpdateLeadData(Request $req, string $id)
     {
         $req->validate([
+            'customer_name' => 'required|string',  /// for Customer name Update
             'price'   => 'required',
             'date'    => 'required',
             'remarks' => 'required',
         ]);
 
         $customer              = customer::find($id);
+
+        $customer->customer_name = $req->customer_name;  /// for Customer name Update
         $customer->price       = $req->price;
         $customer->regitr_date = $req->date;
         $customer->remarks     = $req->remarks;
