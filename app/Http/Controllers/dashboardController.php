@@ -16,6 +16,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; // <-- YEH LINE ADD KAREIN
+//use Maatwebsite\Excel\Facades\Excel; // Excel Import
+//use App\Imports\AgentSaleImport; // Excel Import
 
 class dashboardController extends Controller
 {
@@ -1960,5 +1962,24 @@ public function salesCoordinatorReports(Request $request)
 
         return view('admin.adminAssignedReports', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
     }
+
+    // Testing Code Import Excel File 9/9/2026
+   /* public function importAgentSale(Request $request, string $id)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv'
+    ]);
+
+    try {
+        // $id is the agent ID from the URL
+        Excel::import(new \App\Imports\AgentSaleImport($id), $request->file('file'));
+       // Excel::import(new AgentSaleImport($request->agent_id), $request->file('import_file'));
+        return redirect()->back()->with('success', 'Customer_Registration_Sheet.xlsx Imported Successfully!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error importing file: ' . $e->getMessage());
+    }
+}
+    */
+// End Testing Code Import Excel File 9/9/2026
 
 }

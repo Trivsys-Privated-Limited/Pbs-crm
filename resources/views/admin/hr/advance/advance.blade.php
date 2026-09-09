@@ -4,6 +4,23 @@
 
 @section('content')
     <div class="content-wrapper">
+        <!-- Yahan Se Flash Messages Shuru -->
+        <div class="container-fluid mt-2">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible mx-2 mt-2">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible mx-2 mt-2">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ session('error') }}
+                </div>
+            @endif
+        </div>
+        <!-- Yahan Par Flash Messages Khatam -->
         <div class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
@@ -48,15 +65,35 @@
                                         <td>
                                             {{ \Carbon\Carbon::createFromFormat('Y-m', $advance->start_month)->format('F Y') }}
                                         </td>
-                                        <td>
+                                        <!-- <td>
                                             @if ($advance->status == 'active')
                                                 <span class="btn btn-sm btn-primary">{{ $advance->status }}</span>
                                             @elseif($advance->status == 'completed')
                                                 <span class="btn btn-sm btn-success">{{ $advance->status }}</span>
                                             @endif
-                                        </td>
+                                        </td> -->
+                                        <td>
+                                         <form action="{{ route('advance.updateStatus', $advance->id) }}" method="POST">
+                                             @csrf
+                                             <select name="status" onchange="this.form.submit()" class="form-control form-control-sm {{ $advance->status == 'active' ? 'bg-primary text-white' : 'bg-success text-white' }}">
+                                                 <option value="active" {{ $advance->status == 'active' ? 'selected' : '' }}>Active</option>
+                                                 <option value="completed" {{ $advance->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                             </select>
+                                         </form>
+                                     </td>
 
-                                        <td><a href="{{route('advance.show',$advance->id)}}" class="btn btn-sm btn-primary">View Detail</a>
+                                       <!-- <td><a href="{{route('advance.show',$advance->id)}}" class="btn btn-sm btn-primary">View Detail</a>
+                                        </td> -->
+
+                                        <td>
+                                            <a href="{{ route('advance.show', $advance->id) }}" class="btn btn-sm btn-primary">View Detail</a>
+
+                                             <!-- Delete Form -->
+                                            <form action="{{ route('advance.destroy', $advance->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Kya aap is advance record ko delete krna chahte hain?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

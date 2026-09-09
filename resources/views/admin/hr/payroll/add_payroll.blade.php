@@ -55,13 +55,55 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-6 mt-2">
+                                  <!--  <div class="col-6 mt-2">
                                         <label>Attendance Deduction</label>
                                         <select class="form-control" name="attendance_deduction">
                                             <option value="yes">Apply Deduction</option>
                                             <option value="no">No Deduction</option>
                                         </select>
-                                    </div>
+                                    </div>  -->
+                                    
+                                    {{-- Testing Code Add 10/09/2026 Start --}}
+
+                                     {{-- Hidden Automated Attendance Deduction --}}
+                                    <!-- <div class="col-6 mt-2 d-none">
+                                         <label>Attendance Deduction</label>
+                                         <select class="form-control" name="attendance_deduction">
+                                             <option value="no">No Deduction</option>
+                                         </select>
+                                     </div> -->
+                                     
+                                     {{-- New Manual Attendance Deduction --}}
+                                    <!-- <div class="col-6 mt-2">                                     
+                                         <label for="manualAbsentDeduction">Manual Attendance Deduction (PKR)</label>
+                                         <input class="form-control" type="number" name="manual_absent_deduction" id="manualAbsentDeduction" placeholder="Enter attendance deduction" value="0">
+                                     </div> --> 
+                                     
+                                     {{-- New Manual Advance Deduction --}}
+                                    <!-- <div class="col-6 mt-2">
+                                         <label for="manualAdvanceDeduction">Manual Advance Deduction (PKR)</label>
+                                         <input class="form-control" type="number" name="manual_advance_deduction" id="manualAdvanceDeduction" placeholder="Enter advance deduction" value="0">
+                                     </div>  -->
+                                    {{-- Manual Absent Days --}}
+                                     <div class="col-6 mt-2 d-none">                                     
+                                         <label for="manualAbsentDays">Manual Absent Days (Optional)</label>
+                                         <input class="form-control" type="number" min="0" name="manual_absent_days" id="manualAbsentDays" placeholder="Enter absent days (e.g. 2)">
+                                     </div> 
+
+                                     {{-- Manual Attendance Deduction --}}
+                                     <div class="col-6 mt-2">                                     
+                                         <label for="manualAbsentDeduction">Manual Attendance Deduction (PKR)</label>
+                                         <input class="form-control" type="number" min="0" name="manual_absent_deduction" id="manualAbsentDeduction" placeholder="Enter attendance deduction amount">
+                                     </div> 
+                                     
+                                     {{-- Manual Advance Deduction --}}
+                                     <div class="col-6 mt-2">
+                                         <label for="manualAdvanceDeduction">Manual Advance Deduction (PKR)</label>
+                                         <input class="form-control" type="number" min="0" name="manual_advance_deduction" id="manualAdvanceDeduction" placeholder="Enter advance deduction amount">
+                                     </div>
+
+
+                                     {{-- Testing Code Add 10/09/2026 End--}}
 
                                     <div class="col-6 mt-2">
                                         <label for="manualSalary">Manual Salary (Optional)</label>
@@ -69,12 +111,11 @@
                                             placeholder="Leave empty to use default salary">
                                     </div>
 
-                                    <div class="col-6 mt-2">
+                                  <!--  <div class="col-6 mt-2">
                                         <label for="manualDeduction">Manual Deduction (Optional)</label>
                                         <input class="form-control" type="number" name="manual_deduction" id="manualDeduction"
                                             placeholder="Enter manual deduction amount">
-                                    </div>
-
+                                    </div> -->
 
                                     <!-- /.card-body -->
                                     <div class="card-footer">

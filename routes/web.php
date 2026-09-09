@@ -62,6 +62,9 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::post('/dashboard/storeNumbers', 'storeNumbers')->name('storeNumbers')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/{id}/customer-response', 'viewAgentDistributeNumbersDetail')->name('viewAgentDistributeNumbersDetail')->middleware(validUser::class)->middleware(validRole::class);
         Route::get('/dashboard/all-agent-sale-reports/{id}/', 'viewSaleTable')->name('viewSaleTable')->middleware(validUser::class)->middleware(validRole::class);
+        // Testing Code Import Excel File 9/9/2026
+        //Route::post('/dashboard/all-agent-sale-reports/{id}/import', 'importAgentSale')->name('importAgentSale')->middleware(validUser::class)->middleware(validRole::class);
+        // End Testing Code import Excel File 9/9/2026
         Route::get('/dashboard/all-agent-lead-reports/{id}/', 'viewleadtable')->name('viewleadtable')->middleware(validUser::class)->middleware(validRole::class);
         /// Lead Distribute Route ///
         Route::get('/dashboard/distribute-lead/{id}/', 'distributeLeadsForm')->name('distributeLeadsForm')->middleware(validUser::class)->middleware(validRole::class);
@@ -188,6 +191,10 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/dashboard/add-advance', 'create')->name('advance.create');
         Route::get('/dashboard/show/{id}', 'show')->name('advance.show');
         Route::post('/dashboard/store-advance', 'store')->name('advance.store');
+        // YEH NAYA ROUTE ADD KAREIN:
+        Route::post('/dashboard/advance/{id}/update-status', 'updateStatus')->name('advance.updateStatus');
+        // YEH DELETE ROUTE ADD KAREIN:
+    Route::delete('/dashboard/advance/{id}/delete', 'destroy')->name('advance.destroy');
     });
 
     Route::controller(LeaveController::class)->middleware(validUser::class)->group(function () {

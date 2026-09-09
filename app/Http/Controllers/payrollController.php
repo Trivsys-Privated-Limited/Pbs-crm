@@ -110,7 +110,7 @@ class PayrollController extends Controller
         
 
 
-        $absentDays      = 0;
+      /*  $absentDays      = 0;
         $lateCount       = 0;
         $absentDeduction = 0;
         $lateDeduction   = 0;
@@ -133,7 +133,48 @@ class PayrollController extends Controller
             $lateDeduction   = $lateCount > 3 ? 1000 : 0;
         }
 
-        $advanceDeduction = $this->handleAdvance($employeeId, $month);
+        $advanceDeduction = $this->handleAdvance($employeeId, $month); */
+
+
+        //// Testing Code 11/09/2026 start ////
+        // Attendance Calculation (Manual Input ko Pehle Priority Milegi)
+        $absentDays      = 0;
+        $lateCount       = 0;
+        $absentDeduction = 0;
+        $lateDeduction   = 0;
+
+        if ($request->filled('manual_absent_days') || $request->filled('manual_absent_deduction')) {
+            $absentDays      = (int) ($request->manual_absent_days ?? 0);
+            $absentDeduction = (int) ($request->manual_absent_deduction ?? 0);
+
+            // Agar user ne sirf absent days dale hon aur amount 0 chhor di ho, to 1000 per day ke hisab se calculate kare
+            if ($absentDays > 0 && $absentDeduction == 0) {
+                $absentDeduction = $absentDays * 1000;
+            }
+        } elseif ($request->attendance_deduction === 'yes') {
+            $absentDays = attendance::where('employee_name', $employee->user->name)
+                ->whereYear('date', $year)
+                ->whereMonth('date', $monthNum)
+                ->where('status', 'Absent')
+                ->count();
+
+            $lateCount = attendance::where('employee_name', $employee->user->name)
+                ->whereYear('date', $year)
+                ->whereMonth('date', $monthNum)
+                ->whereIn('status', ['Late', 'Half Day'])
+                ->count();
+
+            $absentDeduction = $absentDays * 1000;
+            $lateDeduction   = $lateCount > 3 ? 1000 : 0;
+        }
+
+        // Advance Calculation (Manual advance support ke sath)
+        $manualAdvance = $request->filled('manual_advance_deduction') ? (int) $request->manual_advance_deduction : null;
+        $advanceDeduction = $this->handleAdvance($employeeId, $month, $manualAdvance);
+
+
+        /// Testing Code 10/09/2026 end ///
+
 
             $netSalary =
             $basicSalary
@@ -160,7 +201,7 @@ class PayrollController extends Controller
         return redirect()->route('payroll.index')
             ->with('success', 'Payroll generated successfully');
     }
-
+/*
     private function handleAdvance($employeeId, $month)
     {
         $advance = advance::where('employee_id', $employeeId)
@@ -190,6 +231,69 @@ class PayrollController extends Controller
 
         return $deduct;
     }
+        */
+    /// Testing Code Add 10/09/2026 ///
+        private function handleAdvance($employeeId, $month, $manualAdvance = null)
+    {
+        $advance = advance::where('employee_id', $employeeId)
+            ->where('status', 'active')
+            ->first();
+
+        // 1. Agar user ne form me manually advance enter kiya ho
+        if ($manualAdvance !== null) {
+            $deduct = (int) $manualAdvance;
+
+            // Agar database me active advance exist karta hai to uski remaining amount aur log update karein
+            if ($deduct > 0 && $advance) {
+                $actualDeduct = min($deduct, $advance->remaining_amount);
+
+                advance_deduction::create([
+                    'advance_id'      => $advance->id,
+                    'employee_id'     => $employeeId,
+                    'month'           => $month,
+                    'deducted_amount' => $actualDeduct,
+                ]);
+
+                $advance->remaining_amount -= $actualDeduct;
+
+                if ($advance->remaining_amount <= 0) {
+                    $advance->remaining_amount = 0;
+                    $advance->status = 'completed';
+                }
+
+                $advance->save();
+            }
+
+            return $deduct;
+        }
+
+        // 2. Agar manual advance enter nahi kiya, to automated system chalega
+        if (! $advance || $advance->remaining_amount <= 0) {
+            return 0;
+        }
+
+        $deduct = min($advance->monthly_amount, $advance->remaining_amount);
+
+        advance_deduction::create([
+            'advance_id'      => $advance->id,
+            'employee_id'     => $employeeId,
+            'month'           => $month,
+            'deducted_amount' => $deduct,
+        ]);
+
+        $advance->remaining_amount -= $deduct;
+
+        if ($advance->remaining_amount == 0) {
+            $advance->status = 'completed';
+        }
+
+        $advance->save();
+
+        return $deduct;
+    }
+
+    /// Testing Code End 10/09/2026 ///
+    
 
     public function show($id)
     {
