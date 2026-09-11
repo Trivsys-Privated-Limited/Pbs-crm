@@ -313,4 +313,79 @@ class PayrollController extends Controller
         return view('admin.hr.payroll.payroll_slip', compact('payroll'));
     }
 
+    //// Code on 11-09-2026 ////
+    // Edit Form Show Karne Ka Function
+    public function edit($id)
+    {
+        $payroll = payroll::with('user')->findOrFail($id);
+        $employees = User::whereIn('role', ['user', 'support', 'Support'])->get();
+        return view('admin.hr.payroll.edit_payroll', compact('payroll', 'employees'));
+    }
+
+    // Edit Data Ko Update Karne Ka Function
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'employee_id' => 'required',
+            'month'       => 'required',
+        ]);
+
+        $payroll = payroll::findOrFail($id);
+        $employeeId = $request->employee_id;
+        
+        $carbon   = Carbon::parse($request->month);
+        $month    = $carbon->format('Y-m');
+
+        // Check if another payroll exists for this month and employee (except the current one)
+        $existingPayroll = payroll::where('employee_id', $employeeId)
+            ->where('month', $month)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingPayroll) {
+            return redirect()->back()->with('error', "Payroll for this employee for $month is already generated.");
+        }
+
+        $employee = employe::with('user')->where('employe_id', $employeeId)->first();
+
+        $basicSalary = $request->filled('manual_salary') ? (int) $request->manual_salary : (int) $employee->salary;
+        $manualDeduction = $request->filled('manual_deduction') ? (int) $request->manual_deduction : (int)$payroll->manual_deduction;
+        $commission = (int) ($request->commission ?? 0);
+
+        // Fetching Manual Deductions
+        $absentDeduction = $request->filled('manual_absent_deduction') ? (int) $request->manual_absent_deduction : 0;
+        $advanceDeduction = $request->filled('manual_advance_deduction') ? (int) $request->manual_advance_deduction : 0;
+        
+        // Retain late deduction if it existed
+        $lateDeduction = $payroll->late_deduction;
+
+        $netSalary = $basicSalary + $commission - $absentDeduction - $lateDeduction - $advanceDeduction - $manualDeduction;
+
+        $payroll->update([
+            'employee_id'       => $employeeId,
+            'month'             => $month,
+            'basic_salary'      => $basicSalary,
+            'absent_deduction'  => $absentDeduction,
+            'advance_deduction' => $advanceDeduction,
+            'manual_deduction'  => $manualDeduction,
+            'commission'        => $commission,
+            'net_salary'        => $netSalary,
+        ]);
+
+        return redirect()->route('payroll.show', $employeeId)
+            ->with('success', 'Payroll updated successfully');
+    }
+
+    // Payroll Delete Karne Ka Function
+    public function destroy($id)
+    {
+        $payroll = payroll::findOrFail($id);
+        $employeeId = $payroll->employee_id;
+        $payroll->delete();
+        
+        return redirect()->route('payroll.show', $employeeId)
+            ->with('success', 'Payroll deleted successfully');
+    }
+    /// End Code 11-09-2026 ////
+
 }

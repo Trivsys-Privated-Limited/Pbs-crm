@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use App\Models\customer;
 use App\Models\oldCustomer;
+use App\Imports\NewSupportImport; // For New ExcelFile import
 
 class SupportController extends Controller
 {
@@ -566,4 +567,96 @@ class SupportController extends Controller
 
         return redirect()->route('viewAgentSaleTable')->with('success', "{$copiedCount} Global Sales successfully copied to Support based on your limit. {$duplicateCount} duplicates were skipped.");
     }
+
+    /// Testing Code 10/09/2026 Start ////
+    // 1. Naya Import Form Dikhane Ke Liye
+    public function newImportIndex()
+    {
+        $supportUsers = User::where('role', 'Support')->orWhere('role', 'support')->get(); 
+        return view('admin.new_import_form', compact('supportUsers'));
+    }
+
+    // 2. File select hone par sheet ko check karne ke liye (Headers aur Count)
+  /*  public function checkNewExcelHeaders(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $data = Excel::toArray([], $request->file('file'));
+            
+            if (isset($data[0]) && count($data[0]) > 0) {
+                // Pehli row ko headers count karna
+                $headers = array_filter($data[0][0]);
+                $totalRows = count($data[0]) - 1; // Heading minus kardi
+                
+                return response()->json([
+                    'success' => true, 
+                    'count' => $totalRows,
+                    'headers' => $headers
+                ]);
+            }
+        }
+        return response()->json(['success' => false, 'count' => 0]);
+    }
+        */
+    
+    public function checkNewExcelHeaders(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $data = Excel::toArray([], $request->file('file'));
+            
+            if (isset($data[0]) && count($data[0]) > 0) {
+                // Headers ko normalize karein (lowercase aur spaces ko underscore se replace karein)
+                $headers = array_map(function($header) {
+                    return strtolower(trim(str_replace(' ', '_', $header)));
+                }, array_filter($data[0][0]));
+                
+                $totalRows = count($data[0]) - 1; // Heading minus kardi
+                
+                // Nayi sheet ke required strict headers
+                $requiredHeaders = ['customer_registration_date', 'customer_name', 'customer_phone'];
+                $isValidTemplate = true;
+
+                foreach ($requiredHeaders as $req) {
+                    if (!in_array($req, $headers)) {
+                        $isValidTemplate = false;
+                        break;
+                    }
+                }
+                
+                return response()->json([
+                    'success' => true, 
+                    'count' => $totalRows,
+                    'headers' => $headers,
+                    'isValidTemplate' => $isValidTemplate
+                ]);
+            }
+        }
+        return response()->json(['success' => false, 'count' => 0]);
+    }
+
+    // 3. Naye form ka data store/import karne ke liye
+    public function newImportStore(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv,txt',
+            'expiry_date' => 'required|date',
+            'assigned_to' => 'required|exists:users,id',
+            'import_limit' => 'nullable|integer|min:1'
+        ]);
+
+        // Form se aaye huay extra missing columns ka data get karein
+        $defaultData = [
+            'agent_name' => $request->input('default_agent_name'),
+            'status'     => $request->input('default_status'),
+        ];
+
+        Excel::import(new NewSupportImport(
+            $request->expiry_date, 
+            $request->assigned_to, 
+            $request->import_limit,
+            $defaultData
+        ), $request->file('file'));
+
+        return redirect()->back()->with('success', 'New Excel File Import Successfully.');
+    }
+    /// Testing Code 10/09/2026 End ///
 }

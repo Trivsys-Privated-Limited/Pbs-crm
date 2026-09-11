@@ -143,6 +143,11 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::post('/dashboard/store-payroll', 'store')->name('payroll.store');
         Route::get('/dashboard/{id}/show/', 'show')->name('payroll.show');
         Route::get('/dashboard/{id}/showPayroll/', 'showPayroll')->name('payroll.showPayroll');
+        /// Code on 11-09-2026 ///
+        // Yahan niche yeh 3 naye routes add karein:
+        Route::get('/dashboard/{id}/edit-payroll', 'edit')->name('payroll.edit');
+        Route::post('/dashboard/{id}/update-payroll', 'update')->name('payroll.update');
+        Route::get('/dashboard/{id}/delete-payroll', 'destroy')->name('payroll.destroy');
     });
 
     Route::controller(EmployeController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
@@ -181,7 +186,13 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         // --- YEH 2 NAYI ROUTES ADD KAREIN --- //
         Route::get('/dashboard/send-all-sales-support', 'viewSendAllSalesToSupportForm')->name('support.sendAllSalesForm');
         Route::post('/dashboard/send-all-sales-support', 'sendAllSalesToSupport')->name('support.sendAllSalesToSupport');
-    // ----------------------------------- //
+    /// Testing Code Start 10/09/2026 ///
+        // New Registration Sheet Import Routes
+        Route::get('/dashboard/new-import', 'newImportIndex')->name('support.newImport');
+        Route::post('/dashboard/new-import', 'newImportStore')->name('support.newImport.store');
+        Route::post('/support/check-new-excel-headers', 'checkNewExcelHeaders')->name('support.checkNewHeaders');
+        /// Testing Code End 10/09/2026 ///
+        // ----------------------------------- //
        /* Route::get('/edit-support-number/{id}', 'editSupportNumber')->name('editSupportNumber');
         Route::post('/support-number/{id}', 'storeSupportNumber')->name('storeSupportNumber');*/
     });

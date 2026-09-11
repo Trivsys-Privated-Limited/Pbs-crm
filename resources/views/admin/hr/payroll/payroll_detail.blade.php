@@ -47,8 +47,13 @@
                                         <td>{{ $payroll['user']['name'] }}</td>
                                        <!-- <td>{{ \Carbon\Carbon::createFromFormat('Y-m', $payroll['month'])->format('F Y') }}</td> -->
                                        <td>{{ \Carbon\Carbon::parse($payroll['month'])->format('F Y') }}</td> 
-                                        <td>
+                                        <!-- <td>
                                             <a href="{{ route('payroll.showPayroll', $payroll['id']) }}" class="btn btn-sm btn-primary">View Pay Slip</a>
+                                        </td> -->
+                                        <td>
+                                            <a href="{{ route('payroll.showPayroll', $payroll['id']) }}" class="btn btn-sm btn-primary mb-1">View Pay Slip</a>
+                                            <a href="{{ route('payroll.edit', $payroll['id']) }}" class="btn btn-sm btn-warning mb-1">Edit</a>
+                                            <a href="{{ route('payroll.destroy', $payroll['id']) }}" onclick="return confirm('Are you sure you want to delete this payroll?')" class="btn btn-sm btn-danger mb-1">Delete</a>
                                         </td>
                                     </tr>
                                 @endforeach

@@ -50,6 +50,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $firstPayroll->user->name }}</td>
+                                    
                                     <td>
                                         <a href="{{ route('payroll.show', $firstPayroll->user->id) }}" class="btn btn-sm btn-primary">
                                             View Detail

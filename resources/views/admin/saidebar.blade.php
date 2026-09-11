@@ -297,6 +297,13 @@
                                         <p>Import Data</p>
                                     </a>
                                 </li>
+                                <!-- Testing Code add 10/09/2026 -->
+                                <li class="nav-item">
+                                    <a href="{{ route('support.newImport') }}" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Import Outside Sheet Data</p>
+                                    </a>
+                                </li>
                                 <!-- NEW: Expired Data Link Added Here -->
                                  <li class="nav-item">
                                     <a href="{{ route('support.expired') }}" class="nav-link">
