@@ -164,14 +164,14 @@
     @if(request('date') || request('status_filter'))
         <a href="{{ route('adminAssignedReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
     @endif -->
-    <!-- Old Button Code before 17/09/2026 -->
+    <!-- Old Button Code before 18/09/2026 -->
                           <!--  <button type="submit" class="btn btn-sm btn-primary">Filter Date</button>
                             @if(request('date'))
                                 <a href="{{ route('adminAssignedReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
                             @endif -->
                             <!-- End Old Button Code -->
                      <!--   </form> -->
-                    <!-- search agent-name 17/09/2026 start -->
+                    <!-- search Agent, Customer Name, Number 18/09/2026 start -->
                      <form method="GET" action="{{ route('adminAssignedReports') }}" class="form-inline">
                         <input type="date" name="date" class="form-control form-control-sm mr-2" value="{{ request('date') }}">
                         
@@ -185,17 +185,17 @@
                             <option value="Call me Back" {{ request('status_filter') == 'Call me Back' ? 'selected' : '' }}>Call me Back</option>
                         </select>
 
-                        <!-- Naya Agent Search Box Yahan Add Hua -->
-                        <input type="text" name="agent_name" class="form-control form-control-sm mr-2" placeholder="Search Agent Name" value="{{ request('agent_name') }}">
-                        
-                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-    
-                        <!-- Reset button logic me request('agent_name') bhi add kar diya -->
-                        @if(request('date') || request('status_filter') || request('agent_name'))
-                            <a href="{{ route('adminAssignedReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
-                        @endif
+                        <!-- Naya Universal Search Box (Agent, Customer Name, Number) -->
+                              <input type="text" name="search_data" class="form-control form-control-sm mr-2" placeholder="Search Agent or Customer Info" value="{{ request('search_data') }}">
+                              
+                              <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                              
+                              <!-- Reset button logic me request('search_data') add kar diya -->
+                              @if(request('date') || request('status_filter') || request('search_data'))
+                                  <a href="{{ route('adminAssignedReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
+                              @endif
                     </form>
-                    <!--  agent-name search code 17/09/2026 End -->
+                    <!--  Agent, Customer Name, Number search code 18/09/2026 End -->
                     </div>
                 </div>
                 <div class="card-body table-responsive p-0">

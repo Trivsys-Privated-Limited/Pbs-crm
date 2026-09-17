@@ -1902,13 +1902,18 @@ public function salesCoordinatorReports(Request $request)
             $query->where('status', $request->status_filter);
         }
     }
-    ///////// 17/09/2026 testing for agent name search ////////
-    // Naya Agent Name Search Logic Add Karein
-    if ($request->has('agent_name') && !empty($request->agent_name)) {
-        $query->where('supports.agent_name', 'like', '%' . $request->agent_name . '%');
+    ///////// 18/09/2026 testing for Agent Name, Customer Name, or Customer Number search ////////
+// Naya Universal Search Logic (Agent Name, Customer Name, or Customer Number)
+    if ($request->has('search_data') && !empty($request->search_data)) {
+        $search = $request->search_data;
+        $query->where(function($q) use ($search) {
+            $q->where('supports.agent_name', 'like', '%' . $search . '%')
+              ->orWhere('supports.name', 'like', '%' . $search . '%')
+              ->orWhere('supports.number', 'like', '%' . $search . '%');
+        });
     }
-    /// End 17/09/2026 ////
-
+    /// End 18/09/2026 ////
+    
         $totalAssigned = (clone $query)->count();
 
         // Support Team Summary Card (Grouped by Support Person Name)
@@ -1951,13 +1956,17 @@ public function salesCoordinatorReports(Request $request)
             $query->where('status', $request->status_filter);
         }
     }
-    ///// Code For agent_name search 17/09/2026  ////
-
-    // Naya Agent Name Search Logic Add Karein
-    if ($request->has('agent_name') && !empty($request->agent_name)) {
-        $query->where('supports.agent_name', 'like', '%' . $request->agent_name . '%');
+    ///// Code For Agent Name, Customer Name, or Customer Number search 18/09/2026  ////
+    // Naya Universal Search Logic (Agent Name, Customer Name, or Customer Number)
+    if ($request->has('search_data') && !empty($request->search_data)) {
+        $search = $request->search_data;
+        $query->where(function($q) use ($search) {
+            $q->where('supports.agent_name', 'like', '%' . $search . '%')
+              ->orWhere('supports.name', 'like', '%' . $search . '%')
+              ->orWhere('supports.number', 'like', '%' . $search . '%');
+        });
     }
-    /// end 17/09/2026 ///
+    /// end 18/09/2026 ///
 
         $totalAssigned = (clone $query)->count();
 
