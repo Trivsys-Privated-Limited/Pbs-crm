@@ -1902,6 +1902,12 @@ public function salesCoordinatorReports(Request $request)
             $query->where('status', $request->status_filter);
         }
     }
+    ///////// 17/09/2026 testing for agent name search ////////
+    // Naya Agent Name Search Logic Add Karein
+    if ($request->has('agent_name') && !empty($request->agent_name)) {
+        $query->where('supports.agent_name', 'like', '%' . $request->agent_name . '%');
+    }
+    /// End 17/09/2026 ////
 
         $totalAssigned = (clone $query)->count();
 
@@ -1945,6 +1951,13 @@ public function salesCoordinatorReports(Request $request)
             $query->where('status', $request->status_filter);
         }
     }
+    ///// Code For agent_name search 17/09/2026  ////
+
+    // Naya Agent Name Search Logic Add Karein
+    if ($request->has('agent_name') && !empty($request->agent_name)) {
+        $query->where('supports.agent_name', 'like', '%' . $request->agent_name . '%');
+    }
+    /// end 17/09/2026 ///
 
         $totalAssigned = (clone $query)->count();
 

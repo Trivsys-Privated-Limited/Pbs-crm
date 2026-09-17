@@ -112,7 +112,7 @@
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-list mr-1"></i> Sales Coordinator Live Activity Logs</h3>
                     <div class="card-tools">
-                        <form method="GET" action="{{ route('salesCoordinatorReports') }}" class="form-inline">
+                     <!--   <form method="GET" action="{{ route('salesCoordinatorReports') }}" class="form-inline">
                             <input type="date" name="date" class="form-control form-control-sm mr-2" value="{{ request('date') }}">
                             <select name="status_filter" class="form-control form-control-sm mr-2">
         <option value="">All Status</option>
@@ -125,12 +125,41 @@
     <button type="submit" class="btn btn-sm btn-primary">Filter</button>
     @if(request('date') || request('status_filter'))
         <a href="{{ route('salesCoordinatorReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
-    @endif
+    @endif -->
+    <!-- Old Button Code before 17/09/2026 -->
                          <!--   <button type="submit" class="btn btn-sm btn-primary">Filter Date</button>
                             @if(request('date'))
                                 <a href="{{ route('salesCoordinatorReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
                             @endif -->
-                        </form>
+
+                            <!-- End Old Button Code -->
+
+                      <!--  </form> -->
+                        <!-- Testing code add 17/09/2026 -->
+                        <form method="GET" action="{{ route('salesCoordinatorReports') }}" class="form-inline">
+                        <input type="date" name="date" class="form-control form-control-sm mr-2" value="{{ request('date') }}">
+    
+    <!-- Naya Status Filter Dropdown -->
+                        <select name="status_filter" class="form-control form-control-sm mr-2">
+                            <option value="">All Status</option>
+                            <option value="pending" {{ request('status_filter') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Satisfied" {{ request('status_filter') == 'Satisfied' ? 'selected' : '' }}>Satisfied</option>
+                            <option value="Non Satisfied" {{ request('status_filter') == 'Non Satisfied' ? 'selected' : '' }}>Non Satisfied</option>
+                            <option value="Not Answering" {{ request('status_filter') == 'Not Answering' ? 'selected' : '' }}>Not Answering</option>
+                            <option value="Call me Back" {{ request('status_filter') == 'Call me Back' ? 'selected' : '' }}>Call me Back</option>
+                        </select>
+
+                        <!-- Naya Agent Search Box Yahan Add Hua -->
+                        <input type="text" name="agent_name" class="form-control form-control-sm mr-2" placeholder="Search Agent Name" value="{{ request('agent_name') }}">
+    
+                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+    
+                        <!-- Reset button logic me request('agent_name') bhi add kar diya -->
+                        @if(request('date') || request('status_filter') || request('agent_name'))
+                            <a href="{{ route('salesCoordinatorReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
+                        @endif
+                    </form>
+                    <!-- End 17/09/2026 -->
                     </div>
                 </div>
                 <div class="card-body table-responsive p-0">

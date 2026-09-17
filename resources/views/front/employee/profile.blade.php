@@ -918,7 +918,76 @@
                                 </div>
                             </div>
 
+
+<!-- Pay Slips Section -->
+<div class="performance-section mt-4">
+    <h3 class="subsection-title">My Payroll & Slips</h3>
+{{-- System message --}}
+    @if(session('success'))
+        <div class="alert alert-success mt-2 mb-3">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger mt-2 mb-3">
+            {{ session('error') }}
+        </div>
+    @endif
+    
+    @if(isset($generatedPayrolls) && $generatedPayrolls->count() > 0)
+        <div class="row">
+            @foreach($generatedPayrolls as $payroll)
+                <div class="col-md-6 mb-3">
+                    <div class="document-card">
+                        <div class="document-info">
+                            <div class="document-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="document-details">
+                                <span class="document-title">Salary Slip - {{ \Carbon\Carbon::parse($payroll->month)->format('F Y') }}</span>
+                                
+                                @if($payroll->slip_status == 'approved')
+                                    <span class="document-status available">Approved</span>
+                                @elseif($payroll->slip_status == 'requested')
+                                    <span class="document-status text-warning" style="color: #f59e0b; font-weight:600;">Pending Approval</span>
+                                @else
+                                    <span class="document-status text-secondary">Not Requested</span>
+                                @endif
+                            </div>
                         </div>
+                        <div class="document-actions">
+                            @if($payroll->slip_status == 'approved')
+                                <!-- Agar approve ho chuki hai tou view/download ka button -->
+                                <a href="{{ route('employee.showPayroll', $payroll->id) }}" class="btn btn-document btn-download">View & Download</a>
+                            @elseif($payroll->slip_status == 'requested')
+                                <!-- Agar request bhej di hai tou button disabled -->
+                                <button class="btn btn-document btn-view" disabled>Requested...</button>
+                            @else
+                                <!-- Agar request abhi nahi bheji tou request bhejne ka button -->
+                                <form action="{{ route('employee.requestSlip', $payroll->id) }}" method="POST" class="m-0 p-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-document btn-view">Request Slip</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div class="alert alert-info">No payroll generated yet.</div>
+    @endif
+</div>
+     {{-- Code end payroll 12/09/2026 --}}
+
+                        </div>
+                        
                     </div>
                 </div>
             </div>

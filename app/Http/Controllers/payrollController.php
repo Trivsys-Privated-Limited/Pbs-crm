@@ -313,7 +313,7 @@ class PayrollController extends Controller
         return view('admin.hr.payroll.payroll_slip', compact('payroll'));
     }
 
-    //// Code on 11-09-2026 ////
+    //// Code on 11-09-2026  edit / delete ////
     // Edit Form Show Karne Ka Function
     public function edit($id)
     {
@@ -386,6 +386,45 @@ class PayrollController extends Controller
         return redirect()->route('payroll.show', $employeeId)
             ->with('success', 'Payroll deleted successfully');
     }
-    /// End Code 11-09-2026 ////
+    /// End Code 11-09-2026 edit / delete ////
+
+    /// Code add for Payroll slip approve 12/09/2026 ///
+    public function approveSlip($id)
+{
+    $payroll = \App\Models\payroll::findOrFail($id);
+    $payroll->slip_status = 'approved';
+    $payroll->save();
+
+    return redirect()->back()->with('success', 'Payroll slip request approved for employee.');
+}
+    // Employee approved slip dekhne ke liye function
+    public function showEmployeeSlip($id)
+    {
+        $payroll = payroll::with('user')->findOrFail($id);
+
+        // Security Check: Agar user employee hai to check karein ke slip usi ki ho aur status 'approved' ho
+       if (auth()->user()->role !== 'admin') {
+            if ($payroll->employee_id != auth()->id() || $payroll->slip_status !== 'approved') {
+                return redirect()->back()->with('error', 'Slip is not approved yet or unauthorized access.');
+            }
+        }
+
+        return view('admin.hr.payroll.payroll_slip', compact('payroll'));
+    }
+
+/// Code End for Payroll slip approve 12/09/2026 ///
+    /// Code add for Payroll slip reject 14/09/2026 ///
+    public function rejectSlip($id)
+    {
+        $payroll = \App\Models\payroll::findOrFail($id);
+        $payroll->slip_status = 'none';
+        $payroll->save();
+
+        return redirect()->back()->with('success', 'Payroll slip request has been rejected.');
+    }
+    /// Code End for Payroll slip reject 14/09/2026 ///
+
+
+
 
 }

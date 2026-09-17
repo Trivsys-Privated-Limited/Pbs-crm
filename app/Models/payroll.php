@@ -17,6 +17,7 @@ class payroll extends Model
         'manual_deduction',
         'commission',
         'net_salary',
+        'slip_status', // yeh line add karein
     ];
 
     public function user()

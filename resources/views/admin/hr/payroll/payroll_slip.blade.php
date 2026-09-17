@@ -145,6 +145,18 @@
     </div>
 
     <style>
+        
+@if(auth()->user()->role !== 'admin')
+.main-sidebar, .main-header {
+    display: none !important;
+}
+.content-wrapper {
+    margin-left: 0 !important;
+    background: #f4f6f9 !important;
+}
+@endif
+
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         .payslip-container {

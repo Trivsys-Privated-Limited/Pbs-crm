@@ -309,6 +309,17 @@ class EmployeController extends Controller
             ->whereYear('regitr_date', $currentYear)
             ->count();
 
+            //// CODE add for user payroll inform 12/09/2026 ////
+            // Fetch only the months for which payroll is generated (No salary details)
+           /* $generatedPayrolls = \App\Models\payroll::where('employee_id', $agentId)
+            ->orderBy('month', 'desc')
+            ->get(['month']); */
+            //// CODE add for user payroll inform 12/09/2026 ////
+             $generatedPayrolls = \App\Models\payroll::where('employee_id', $agentId)
+                 ->orderBy('month', 'desc')
+                 ->get(); // Yahan se ['month'] hata dain taqay pura data aye
+            /// End Payroll Inform ///
+
         return view('front.employee.profile', compact(
             'employee',
             'sales',
@@ -317,8 +328,26 @@ class EmployeController extends Controller
             'SalePrice',
             'monthlyAttendance',
             'monthlyHalfDays',
-            'monthlyAbsent'
+            'monthlyAbsent',
+            'generatedPayrolls' // Yeh nayi line add karni hai
         ));
     }
 
+     //// CODE add for payroll slip request 12/09/2026////
+
+    public function requestSlip($id)
+    {
+        $payroll = \App\Models\payroll::findOrFail($id);
+
+        // Security check: Employee sirf apni hi slip request kar sakay
+        if (auth()->user()->role === 'user' && $payroll->employee_id != auth()->id()) {
+            return redirect()->back()->with('error', 'Unauthorized access.');
+        }
+
+        $payroll->slip_status = 'requested';
+        $payroll->save();
+
+        return redirect()->back()->with('success', 'Payroll slip request sent to admin successfully.');
+    }
+//// CODE End for payroll slip request 12/09/2026 ////
 }

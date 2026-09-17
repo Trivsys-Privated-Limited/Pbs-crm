@@ -144,10 +144,15 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::get('/dashboard/{id}/show/', 'show')->name('payroll.show');
         Route::get('/dashboard/{id}/showPayroll/', 'showPayroll')->name('payroll.showPayroll');
         /// Code on 11-09-2026 ///
-        // Yahan niche yeh 3 naye routes add karein:
+        // Yahan niche yeh 3 naye routes add karein: edit or delete payroll route
         Route::get('/dashboard/{id}/edit-payroll', 'edit')->name('payroll.edit');
         Route::post('/dashboard/{id}/update-payroll', 'update')->name('payroll.update');
         Route::get('/dashboard/{id}/delete-payroll', 'destroy')->name('payroll.destroy');
+        /// code end 11-09-2026 ///
+        /// Code on 14/09/2026 ///
+       Route::get('/dashboard/{id}/approve-slip', 'approveSlip')->name('payroll.approveSlip'); 
+       Route::get('/dashboard/{id}/reject-slip', 'rejectSlip')->name('payroll.rejectSlip');
+       /// Code End for Payroll slip approve and reject routes 14/09/2026 ///
     });
 
     Route::controller(EmployeController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
@@ -159,6 +164,20 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         Route::post('/dashboard/{id}/update-employee', 'update')->name('employee.update');
         Route::get('/dashboard/{id}/delete-employee', 'destroy')->name('employee.destroy');
     });
+   // ==========================================
+// 3. PAYROLL SLIP ACTION ROUTES (Groups Se Bahar)
+// ==========================================
+// Code on 14/09/2026 //
+// Employee request bhejney ke liye (POST)
+Route::post('/employee/request-slip/{id}', [\App\Http\Controllers\EmployeController::class, 'requestSlip'])
+    ->middleware(validUser::class)
+    ->name('employee.requestSlip');
+
+// Employee apni approved slip dekhney/download karney ke liye (GET)
+Route::get('/employee/view-slip/{id}', [\App\Http\Controllers\PayrollController::class, 'showEmployeeSlip'])
+    ->middleware(validUser::class)
+    ->name('employee.showPayroll');
+/// Code End for Employee request and view slip routes 14/09/2026 ///
 
     Route::controller(AttendanceController::class)->middleware(validUser::class)->middleware(validRole::class)->group(function () {
         Route::get('/dashboard/employee-attendance', 'index')->name('attendance.index');
