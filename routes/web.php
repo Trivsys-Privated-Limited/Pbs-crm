@@ -174,7 +174,7 @@ Route::post('/employee/request-slip/{id}', [\App\Http\Controllers\EmployeControl
     ->name('employee.requestSlip');
 
 // Employee apni approved slip dekhney/download karney ke liye (GET)
-Route::get('/employee/view-slip/{id}', [\App\Http\Controllers\PayrollController::class, 'showEmployeeSlip'])
+Route::get('/employee/view-slip/{id}', [\App\Http\Controllers\payrollController::class, 'showEmployeeSlip'])
     ->middleware(validUser::class)
     ->name('employee.showPayroll');
 /// Code End for Employee request and view slip routes 14/09/2026 ///
