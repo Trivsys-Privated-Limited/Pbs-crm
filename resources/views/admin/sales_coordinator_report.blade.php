@@ -173,7 +173,7 @@
                                 <th>Customer Info</th>
                                 <th>Assigned Date</th>
                                 <th>Expiry Date</th>
-                                <th>Remarks</th> <!-- Naya Column Yahan Add Hua -->
+                                <th>Remarks</th> <!-- Naya Column Yahan Add Hua --> 
                                 <th>Work Status</th>
                                 <th>Action</th> <!-- Naya Column -->
                             </tr>
