@@ -622,11 +622,48 @@ class SupportController extends Controller
                     }
                 }
                 
+                // Duplicate Check - Agar template valid hai toh numbers check karein
+                $duplicateInSupports = 0;
+                $duplicateInExpired = 0;
+                $freshCount = 0;
+                $emptyCount = 0;
+
+                if ($isValidTemplate) {
+                    $phoneIndex = array_search('customer_phone', $headers);
+                    
+                    if ($phoneIndex !== false) {
+                        $allRows = $data[0];
+                        array_shift($allRows); // Header row hata di
+                        
+                        foreach ($allRows as $row) {
+                            $rawPhone = $row[$phoneIndex] ?? '';
+                            $cleanPhone = preg_replace('/[^0-9]/', '', (string)$rawPhone);
+                            
+                            if (empty($cleanPhone)) {
+                                $emptyCount++;
+                                continue;
+                            }
+                            
+                            if (support::where('number', $cleanPhone)->exists()) {
+                                $duplicateInSupports++;
+                            } elseif (ExpiredSupport::where('number', $cleanPhone)->exists()) {
+                                $duplicateInExpired++;
+                            } else {
+                                $freshCount++;
+                            }
+                        }
+                    }
+                }
+
                 return response()->json([
                     'success' => true, 
                     'count' => $totalRows,
                     'headers' => $headers,
-                    'isValidTemplate' => $isValidTemplate
+                    'isValidTemplate' => $isValidTemplate,
+                    'duplicateInSupports' => $duplicateInSupports,
+                    'duplicateInExpired' => $duplicateInExpired,
+                    'freshCount' => $freshCount,
+                    'emptyCount' => $emptyCount,
                 ]);
             }
         }

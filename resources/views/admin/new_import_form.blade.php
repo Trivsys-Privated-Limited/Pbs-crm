@@ -52,6 +52,32 @@
                                             <p class="mb-0">Please upload the correct excel file. The file must contain exactly these columns: <b>CUSTOMER REGISTRATION DATE, CUSTOMER NAME, CUSTOMER PHONE</b>.</p>
                                         </div>
                                     </div>
+                                    <!-- Duplicate Numbers Info Div -->
+                                    <div class="col-12 mt-3" id="duplicateInfoDiv" style="display:none;">
+                                        <div class="alert alert-info mb-0">
+                                            <h5 class="font-weight-bold"><i class="icon fas fa-info-circle"></i> Sheet Numbers Analysis</h5>
+                                            <table class="table table-sm table-bordered mt-2 mb-0 bg-white">
+                                                <tbody>
+                                                    <tr class="bg-success text-white">
+                                                        <td><b>Fresh Numbers (Will be Imported)</b></td>
+                                                        <td class="text-center"><b id="freshCountSpan">0</b></td>
+                                                    </tr>
+                                                    <tr class="bg-warning">
+                                                        <td><b>Already in Supports Table (Duplicate - Skip)</b></td>
+                                                        <td class="text-center"><b id="dupSupportSpan">0</b></td>
+                                                    </tr>
+                                                    <tr class="bg-danger text-white">
+                                                        <td><b>Already in Expired Supports Table (Duplicate - Skip)</b></td>
+                                                        <td class="text-center"><b id="dupExpiredSpan">0</b></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><b>Empty / Invalid Phone Numbers (Skip)</b></td>
+                                                        <td class="text-center"><b id="emptyCountSpan">0</b></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                     <!-- Import Limit -->
                                     <div class="col-12 mt-3" id="customLimitDivNew" style="display:none;">
                                         <label for="importLimitNew">Import Limit (Optional)</label>
@@ -184,6 +210,7 @@ $(document).ready(function() {
             $('#customLimitDivNew').fadeOut();
             $('#missingColumnsDiv').fadeOut();
             $('#templateErrorDiv').fadeOut();
+            $('#duplicateInfoDiv').fadeOut();
             btn.prop('disabled', false);
             return;
         }
@@ -229,12 +256,20 @@ $(document).ready(function() {
 
                         $('#dynamicInputsContainer').html(missingHtml);
                         $('#missingColumnsDiv').fadeIn();
+
+                        // Duplicate Info Show Karein
+                        $('#freshCountSpan').text(response.freshCount || 0);
+                        $('#dupSupportSpan').text(response.duplicateInSupports || 0);
+                        $('#dupExpiredSpan').text(response.duplicateInExpired || 0);
+                        $('#emptyCountSpan').text(response.emptyCount || 0);
+                        $('#duplicateInfoDiv').fadeIn();
                     } else {
                         // Agar Template ghalat hai
                         $('#templateErrorDiv').fadeIn();
                         $('#totalDataCountNew').fadeOut();
                         $('#customLimitDivNew').fadeOut();
                         $('#missingColumnsDiv').fadeOut();
+                        $('#duplicateInfoDiv').fadeOut();
                         btn.prop('disabled', true).text('Import Sheet Data'); // Button disabled rahega
                     }
                 } else {
