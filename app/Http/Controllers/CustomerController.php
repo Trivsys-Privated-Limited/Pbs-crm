@@ -632,6 +632,7 @@ public function editSupportNumber($id)
 }
 
 // Update ka Method
+/*
 public function storeSupportNumber(Request $req, string $id)
 {
     $req->validate([
@@ -655,6 +656,51 @@ public function storeSupportNumber(Request $req, string $id)
   // Form update hone ke baad Support Numbers list page par redirect karega
 return redirect()->route('supportNumbers')->with('success', 'Support Number Updated Successfully');
 }
+*/
+// Add new for not-answering numbers reassign 09-30-2026 
+// Update Support Number / Re-assign Logic
+public function storeSupportNumber(Request $req, string $id)
+{
+    $support = support::findOrFail($id);
+
+    // Agar Re-assign inputs (assigned_to ya expiry_date) aaye hain (Admin / Sales Coordinator ne update kiya hai)
+    if ($req->filled('assigned_to')) {
+        $support->assigned_to = $req->assigned_to;
+        
+        if ($req->filled('expiry_date')) {
+            $support->expiry_date = $req->expiry_date;
+        }
+
+        $support->assigned_date = now()->toDateString();
+        $support->assigned_by_name = Auth::user()->name;
+        $support->assigned_by_role = Auth::user()->role;
+
+        // CRITICAL: Status ko reset (NULL) kar diya gaya hai taake ye number Not-Answering se hakar Support User ki "supportNumbers" list mein chala jaye
+        $support->status = $req->filled('status') ? $req->status : null;
+    } else {
+        // Support User dwara Status update
+        if ($req->has('status')) {
+            $support->status = $req->status;
+        }
+    }
+
+    if ($req->has('remarks')) {
+        $support->remarks = $req->remarks;
+    }
+
+    $support->save();
+
+    // Agar Request AJAX ke zariye ayi ho
+    if ($req->wantsJson() || $req->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Support Number Updated Successfully'
+        ]);
+    }
+
+    return redirect()->route('supportNumbers')->with('success', 'Support Number Updated Successfully');
+}
+// End re-assign not-answering numbers 09-30-2026
 
 // Satisfied Numbers List
 /*

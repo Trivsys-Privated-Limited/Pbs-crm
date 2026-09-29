@@ -1884,6 +1884,9 @@ public function salesCoordinatorReports(Request $request)
             ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
             ->whereNotNull('supports.assigned_to');
 
+         // NAYA CODE: Support Users Fetch Karein isko (supportUsers) compact ka add krna hy bs  09-30-2026
+         $supportUsers = \App\Models\User::whereIn('role', ['Support', 'support'])->get();
+         // NAYA CODE: End Support Users Fetch Karein 09-30-2026
         if (Auth::user()->role === 'sales coordinator') {
             $query->where('supports.assigned_by_name', Auth::user()->name);
         } else {
@@ -1929,7 +1932,7 @@ public function salesCoordinatorReports(Request $request)
 
         $coordinatorData = $query->orderBy('supports.assigned_date', 'desc')->paginate(50);
 
-        return view('admin.sales_coordinator_report', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
+        return view('admin.sales_coordinator_report', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData', 'supportUsers'));
     }
 
     // 2. Admin Assigned Reports
@@ -1943,6 +1946,10 @@ public function salesCoordinatorReports(Request $request)
             ->leftJoin('users', 'supports.assigned_to', '=', 'users.id')
             ->whereNotNull('supports.assigned_to')
             ->where('supports.assigned_by_role', 'admin');
+
+          // NAYA CODE: Support Users Fetch Karein isko (supportUsers) compact ka add krna hy bs  09-30-2026
+         $supportUsers = \App\Models\User::whereIn('role', ['Support', 'support'])->get();
+          // NAYA CODE: End Support Users Fetch Karein isko (supportUsers) compact ka add krna hy bs  09-30-2026
 
         if ($request->has('date') && !empty($request->date)) {
             $query->whereDate('supports.assigned_date', $request->date);

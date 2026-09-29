@@ -103,7 +103,7 @@
                             
 <!-- Status Update Model pop code -->
 <!-- Edit Support Status Modal -->
-<div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -137,7 +137,68 @@
             </form>
         </div>
     </div>
+</div> -->
+
+<!-- Add new for re-assign not-answering numbers 09-30-2026  -->
+ <!-- Edit Support Status & Reassign Modal -->
+<div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSupportModalLabel">Update Status / Re-assign Support Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editSupportForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <!-- Support Agent Dropdown (Re-assign) -->
+                    <div class="form-group">
+                        <label for="modal_assigned_to">Assign / Re-assign To Support Agent <span class="text-danger">*</span></label>
+                        <select name="assigned_to" id="modal_assigned_to" class="form-control" required>
+                            <option value="">Select Support Agent</option>
+                            @if(isset($supportUsers))
+                                @foreach($supportUsers as $sUser)
+                                    <option value="{{ $sUser->id }}">{{ $sUser->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <!-- Expiry Date Field -->
+                    <div class="form-group">
+                        <label for="modal_expiry_date">Expiry Date <span class="text-danger">*</span></label>
+                        <input type="date" name="expiry_date" id="modal_expiry_date" class="form-control" required>
+                    </div>
+
+                    <!-- Status Dropdown -->
+                    <div class="form-group">
+                        <label for="modal_status">Status (Select empty/blank to Reset to Pending)</label>
+                        <select name="status" id="modal_status" class="form-control">
+                            <option value="">Reset Status (Pending/Fresh)</option>
+                            <option value="Satisfied">Satisfied</option>
+                            <option value="Non Satisfied">Non Satisfied</option>
+                            <option value="Not Answering">Not Answering</option>
+                            <option value="Call me Back">Call me Back</option>
+                        </select>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="form-group">
+                        <label for="modal_remarks">Remarks</label>
+                        <textarea name="remarks" id="modal_remarks" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+<!-- End add new for re-assign not-answering numbers 09-30-2026  -->
 
                         </div>
                     </div>
@@ -283,7 +344,7 @@
 </td> -->
 <td>
     <!-- Button Click karne par Popup Khulega (Condition Hata Di Gayi Hai) -->
-    <button type="button" 
+  <!--  <button type="button" 
         class="btn btn-sm btn-info text-white edit-support-btn" 
         data-toggle="modal" 
         data-target="#editSupportModal"
@@ -293,7 +354,23 @@
         data-remarks="{{ $row->remarks }}" 
         data-status="{{ $row->status }}">
         <i class="fas fa-edit"></i> Edit
-    </button>
+    </button> -->
+    <!-- add new for re-assign not-answering numbers 09-30-2026  -->
+    <button type="button" 
+    class="btn btn-sm btn-info text-white edit-support-btn" 
+    data-toggle="modal" 
+    data-target="#editSupportModal"
+    data-bs-toggle="modal" 
+    data-bs-target="#editSupportModal"
+    data-id="{{ $row->id }}" 
+    data-remarks="{{ $row->remarks }}" 
+    data-status="{{ $row->status }}"
+    data-assigned_to="{{ $row->assigned_to }}"
+    data-expiry_date="{{ \Carbon\Carbon::parse($row->expiry_date)->format('Y-m-d') }}">
+    <i class="fas fa-edit"></i> Edit / Re-assign
+</button>
+<!-- End add new for re-assign not-answering numbers 09-30-2026  -->
+
 </td>
                                 </tr>
                             @empty
@@ -313,7 +390,9 @@
     </section>
 </div>
 @endsection
-@push('scripts') <!-- Ya simple <script> tag agar push layout use nahi kar rahe -->
+
+<!-- Ya simple <script> tag agar push layout use nahi kar rahe -->
+<!-- @push('scripts')
 <script>
 $(document).ready(function () {
     // Edit Button Click Handling
@@ -361,4 +440,53 @@ $(document).ready(function () {
     });
 });
 </script>
+@endpush -->
+<!-- Add new for re-assign not-answering numbers 09-30-2026  -->
+@push('scripts')
+<script>
+$(document).ready(function () {
+    $('.edit-support-btn').on('click', function () {
+        let id = $(this).data('id');
+        let remarks = $(this).data('remarks');
+        let status = $(this).data('status');
+        let assigned_to = $(this).data('assigned_to');
+        let expiry_date = $(this).data('expiry_date');
+
+        let actionUrl = "{{ url('/store-support-number') }}/" + id;
+        $('#editSupportForm').attr('action', actionUrl);
+
+        $('#modal_remarks').val(remarks);
+        $('#modal_status').val(status ?? '');
+        $('#modal_assigned_to').val(assigned_to);
+        $('#modal_expiry_date').val(expiry_date);
+
+        $('#editSupportModal').modal('show');
+    });
+
+    $('#editSupportForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let form = $(this);
+        let actionUrl = form.attr('action');
+        $('#saveBtn').prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: actionUrl,
+            type: 'POST',
+            data: form.serialize(),
+            success: function (response) {
+                if (response.success) {
+                    $('#editSupportModal').modal('hide');
+                    window.location.reload(); 
+                }
+            },
+            error: function (xhr) {
+                alert('Something went wrong. Please check fields again.');
+                $('#saveBtn').prop('disabled', false).text('Save Changes');
+            }
+        });
+    });
+});
+</script>
 @endpush
+<!-- End re-assign not-answering numbers 09-30-2026  -->
