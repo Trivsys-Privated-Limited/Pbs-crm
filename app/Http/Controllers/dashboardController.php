@@ -1989,7 +1989,7 @@ public function salesCoordinatorReports(Request $request)
 
         $coordinatorData = $query->orderBy('supports.assigned_date', 'desc')->paginate(50);
 
-        return view('admin.adminAssignedReports', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData'));
+        return view('admin.adminAssignedReports', compact('totalAssigned', 'bySupportTeam', 'byStatus', 'coordinatorData','supportUsers'));
     }
 
     // Testing Code Import Excel File 9/9/2026
