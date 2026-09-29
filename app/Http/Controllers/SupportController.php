@@ -250,6 +250,53 @@ class SupportController extends Controller
         return back()->with('success', $assignedCount . ' Customer Numbers Re-assigned to Support Team Successfully');
     }
 
+    // 2️⃣ Method: Re-assign Limit Not Answering
+    // SupportController.php mein add karein
+public function reassignLimitNotAnswering(Request $request) 
+{
+    $request->validate([
+        'limit_count' => 'required|integer|min:1',
+        'new_expiry_date' => 'required|date',
+        'assigned_to' => 'required|exists:users,id',
+    ]);
+
+    // "Not Answering" status waly records uthayenge
+    $query = support::where('status', 'Not Answering');
+    // Agar user Sales Coordinator hai toh sirf uske assign kiye hue utheinge (Admin ke liye sab utheinge)
+    if (Auth::user()->role === 'sales coordinator') {
+        $query->where('assigned_by_name', Auth::user()->name);
+    }
+    // NAYA CODE: Backend Validation
+    $availableCount = $query->count();
+    if ($request->limit_count > $availableCount) {
+        return back()->with('error', 'You Have Not-Answering Only ' . $availableCount . ' numbers, You Can not Reassign More Than This!');
+    }
+    // Limit ke mutabiq records fetch karein
+    $notAnsweringRecords = $query->orderBy('id', 'asc')->take((int)$request->limit_count)->get();
+
+    if ($notAnsweringRecords->isEmpty()) {
+        return back()->with('error', 'No "Not Answering" Numbers Available to Re-assign');
+    }
+
+    $assignedCount = 0;
+
+    foreach ($notAnsweringRecords as $record) {
+        // Status ko null (reset) kar denge taake wo Support User ko pending/fresh show ho
+        $record->update([
+            'status' => null, 
+            'expiry_date' => $request->new_expiry_date,
+            'assigned_to' => $request->assigned_to,
+            'assigned_date' => now()->toDateString(),
+            'assigned_by_name' => Auth::user()->name,
+            'assigned_by_role' => Auth::user()->role,
+        ]);
+        
+        $assignedCount++;
+    }
+
+    return back()->with('success', $assignedCount . ' "Not Answering" Numbers Bulk Re-assigned Successfully!');
+}
+
     // View the form and count total agent sales
     public function viewSendSalesToSupportForm($agent_id)
     {

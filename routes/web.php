@@ -199,6 +199,8 @@ Route::get('/employee/view-slip/{id}', [\App\Http\Controllers\payrollController:
         Route::post('/dashboard/reassign-support/{id}', 'reassignSupportData')->name('support.reassign');
         // Limit ky sath expiry number support ko re-assign krny ka route
         Route::post('/dashboard/reassign-limit-supports', 'reassignLimitSupportData')->name('support.reassign.limit');
+        // NAYA ROUTE add for re-assign not-answering numbers : 09-30-2026
+Route::post('/dashboard/reassign-limit-not-answering', 'reassignLimitNotAnswering')->name('support.reassign.not_answering_limit');
         // Add these two lines for Agent Sales to Support 
         Route::get('/dashboard/{id}/send-sales-support', 'viewSendSalesToSupportForm')->name('support.sendSalesForm');
         Route::post('/dashboard/{id}/send-sales-support', 'sendSalesToSupport')->name('support.sendSalesToSupport');

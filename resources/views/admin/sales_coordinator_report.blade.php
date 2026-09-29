@@ -112,29 +112,11 @@
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-list mr-1"></i> Sales Coordinator Live Activity Logs</h3>
                     <div class="card-tools">
-                     <!--   <form method="GET" action="{{ route('salesCoordinatorReports') }}" class="form-inline">
-                            <input type="date" name="date" class="form-control form-control-sm mr-2" value="{{ request('date') }}">
-                            <select name="status_filter" class="form-control form-control-sm mr-2">
-        <option value="">All Status</option>
-        <option value="pending" {{ request('status_filter') == 'pending' ? 'selected' : '' }}>Pending</option>
-        <option value="Satisfied" {{ request('status_filter') == 'Satisfied' ? 'selected' : '' }}>Satisfied</option>
-        <option value="Non Satisfied" {{ request('status_filter') == 'Non Satisfied' ? 'selected' : '' }}>Non Satisfied</option>
-        <option value="Not Answering" {{ request('status_filter') == 'Not Answering' ? 'selected' : '' }}>Not Answering</option>
-        <option value="Call me Back" {{ request('status_filter') == 'Call me Back' ? 'selected' : '' }}>Call me Back</option>
-    </select>
-    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-    @if(request('date') || request('status_filter'))
-        <a href="{{ route('salesCoordinatorReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
-    @endif -->
-    <!-- Old Button Code before 18/09/2026 /17 -->
-                         <!--   <button type="submit" class="btn btn-sm btn-primary">Filter Date</button>
-                            @if(request('date'))
-                                <a href="{{ route('salesCoordinatorReports') }}" class="btn btn-sm btn-secondary ml-1">Reset</a>
-                            @endif -->
-
-                            <!-- End Old Button Code -->
-
-                      <!--  </form> -->
+                        <!-- Add Code for re-assign not-answering numbers bulk 09-30-2026 -->
+                        <button type="button" class="btn btn-sm btn-warning mr-2 mb-2" data-toggle="modal" data-target="#bulkNotAnsweringModal" data-bs-toggle="modal" data-bs-target="#bulkNotAnsweringModal">
+                            <i class="fas fa-exchange-alt"></i> Bulk Re-assign (Not Answering)
+                        </button>
+                        <!-- End  re-assign not-answering numbers bulk 09-30-2026 Code -->
                         <!-- Search code Agent, Customer Name, Number 18/09/2026 -->
                         <form method="GET" action="{{ route('salesCoordinatorReports') }}" class="form-inline">
                         <input type="date" name="date" class="form-control form-control-sm mr-2" value="{{ request('date') }}">
@@ -220,49 +202,9 @@
                                             <span class="badge badge-warning">{{ $row->status ?? 'Pending' }}</span>
                                         @endif
                                     </td>
-                                   <!-- <td>
-                @if(empty($row->status))
-                    <a href="{{ route('editSupportNumber', $row->id) }}" class="btn btn-sm btn-info text-white">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                @else
-                    <span class="text-muted"><i class="fas fa-check-circle"></i> Updated</span>
-                @endif
-            </td> -->
-            <!-- Table Action Column -->
-<!-- <td>
-    @if(empty($row->status))
-        // Button Click karne par Popup Khulega
-        <button type="button" 
-        class="btn btn-sm btn-info text-white edit-support-btn" 
-        data-toggle="modal" 
-        data-target="#editSupportModal"
-        data-bs-toggle="modal" 
-        data-bs-target="#editSupportModal"
-        data-id="{{ $row->id }}" 
-        data-remarks="{{ $row->remarks }}" 
-        data-status="{{ $row->status }}">
-    <i class="fas fa-edit"></i> Edit
-</button>
 
-    @else
-        <span class="text-muted"><i class="fas fa-check-circle"></i> Updated</span>
-    @endif
-</td> -->
-
-<td>
+                                    <td>
     <!-- Button Click karne par Popup Khulega (Condition Hata Di Gayi Hai) -->
-   <!-- <button type="button" 
-        class="btn btn-sm btn-info text-white edit-support-btn" 
-        data-toggle="modal" 
-        data-target="#editSupportModal"
-        data-bs-toggle="modal" 
-        data-bs-target="#editSupportModal"
-        data-id="{{ $row->id }}" 
-        data-remarks="{{ $row->remarks }}" 
-        data-status="{{ $row->status }}">
-        <i class="fas fa-edit"></i> Edit
-    </button> -->
     <!-- add new for re-assign not-answering numbers 09-30-2026  -->
     <button type="button" 
     class="btn btn-sm btn-info text-white edit-support-btn" 
@@ -288,43 +230,6 @@
                             @endforelse
                         </tbody>
                     </table>
-                    <!-- Edit Support Status Modal -->
-<!-- <div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editSupportModalLabel">Update Support Status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="editSupportForm" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="modal_status">Status <span class="text-danger">*</span></label>
-                        <select name="status" id="modal_status" class="form-control" required>
-                            <option value="">Select Status</option>
-                            <option value="Satisfied">Satisfied</option>
-                            <option value="Non Satisfied">Non Satisfied</option>
-                            <option value="Not Answering">Not Answering</option>
-                            <option value="Call me Back">Call me Back</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="modal_remarks">Remarks <span class="text-danger">*</span></label>
-                        <textarea name="remarks" id="modal_remarks" class="form-control" rows="3" required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div> -->
-
 <!-- Add new for re-assign not-answering numbers 09-30-2026  -->
  <!-- Edit Support Status & Reassign Modal -->
 <div class="modal fade" id="editSupportModal" tabindex="-1" role="dialog" aria-labelledby="editSupportModalLabel" aria-hidden="true">
@@ -385,6 +290,58 @@
     </div>
 </div>
 <!-- End add new for re-assign not-answering numbers 09-30-2026  -->
+ <!-- add code for bulk re-assign not-answering 09-30-2026 -->
+ <!-- Bulk Re-assign Not Answering Modal -->
+<div class="modal fade" id="bulkNotAnsweringModal" tabindex="-1" role="dialog" aria-labelledby="bulkNotAnsweringModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="bulkNotAnsweringModalLabel">Bulk Re-assign (Not Answering)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('support.reassign.not_answering_limit') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                    <label>Enter Quantity (How Many numbers you want to Re-assign?) <span class="text-danger">*</span></label>
+                    <!-- NAYA CODE: max aur id add kiya -->
+                    <input type="number" id="bulk_limit_count" name="limit_count" class="form-control" required min="1" max="{{ $notAnsweringCount }}" placeholder="Available: {{ $notAnsweringCount }}">
+                    
+                    <!-- Error Message (Jo by default hide rahega) -->
+                    <small id="limit_error_msg" class="text-danger font-weight-bold mt-1" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> Tumhare paas "Not-Answering" mein sirf {{ $notAnsweringCount }} numbers hain, tum is se zyada enter nahi kar sakte!
+                    </small>
+                </div>
+                    
+                    <div class="form-group">
+                        <label>Assign to Support Agent <span class="text-danger">*</span></label>
+                        <select name="assigned_to" class="form-control" required>
+                            <option value="">Select Support Agent</option>
+                            @if(isset($supportUsers))
+                                @foreach($supportUsers as $sUser)
+                                    <option value="{{ $sUser->id }}">{{ $sUser->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Expiry Date <span class="text-danger">*</span></label>
+                        <input type="date" name="new_expiry_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" id="bulk_submit_btn" class="btn btn-warning font-weight-bold">Re-assign Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- End code for bulk re-assign not-answering 09-30-2026 -->
                 </div>
                 <!--
                 <div class="card-footer clearfix">
@@ -399,57 +356,6 @@
     </section>
 </div>
 @endsection
-<!-- Ya simple <script> tag agar push layout use nahi kar rahe -->
-<!--@push('scripts')
-<script>
-$(document).ready(function () {
-    // Edit Button Click Handling
-    $('.edit-support-btn').on('click', function () {
-        let id = $(this).data('id');
-        let remarks = $(this).data('remarks');
-        let status = $(this).data('status');
-
-        // Dynamically Action URL set karein
-        let actionUrl = "{{ url('/store-support-number') }}/" + id; // Ya jo bhi aapka route path hai
-        $('#editSupportForm').attr('action', actionUrl);
-
-        // Fields populate karein
-        $('#modal_remarks').val(remarks);
-        $('#modal_status').val(status);
-
-        // Modal Open karein
-        $('#editSupportModal').modal('show');
-    });
-
-    // Form Submit handling via AJAX
-    $('#editSupportForm').on('submit', function (e) {
-        e.preventDefault();
-
-        let form = $(this);
-        let actionUrl = form.attr('action');
-        $('#saveBtn').prop('disabled', true).text('Saving...');
-
-        $.ajax({
-            url: actionUrl,
-            type: 'POST',
-            data: form.serialize(),
-            success: function (response) {
-                if (response.success) {
-                    $('#editSupportModal').modal('hide');
-                    // Save hone ke baad wahi page reload hoga bina URL change kiye
-                    window.location.reload(); 
-                }
-            },
-            error: function (xhr) {
-                alert('Something went wrong. Please check fields again.');
-                $('#saveBtn').prop('disabled', false).text('Save Changes');
-            }
-        });
-    });
-});
-</script>
-@endpush -->
-
 <!-- Add new for re-assign not-answering numbers 09-30-2026  -->
 @push('scripts')
 <script>
@@ -499,3 +405,26 @@ $(document).ready(function () {
 </script>
 @endpush
 <!-- End re-assign not-answering numbers 09-30-2026  -->
+  <!-- Add Validation bulk not-answering form 09-30-2026 -->
+ <script>
+$(document).ready(function () {
+    // Bulk Re-assign limit validation
+    $('#bulk_limit_count').on('input', function() {
+        let maxCount = {{ $notAnsweringCount }};
+        let enteredCount = parseInt($(this).val());
+
+        if (enteredCount > maxCount) {
+            // Agar limit se zyada likha toh error dikhao aur button disable kardo
+            $('#limit_error_msg').slideDown();
+            $('#bulk_submit_btn').prop('disabled', true);
+            $(this).addClass('is-invalid'); // Input field ko red border dega
+        } else {
+            // Agar theek hai toh sab normal kardo
+            $('#limit_error_msg').slideUp();
+            $('#bulk_submit_btn').prop('disabled', false);
+            $(this).removeClass('is-invalid');
+        }
+    });
+});
+</script>
+<!-- End Validation bulk not-answering form 09-30-2026 -->
