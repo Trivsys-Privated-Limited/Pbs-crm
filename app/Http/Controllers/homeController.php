@@ -9,6 +9,7 @@ use App\Models\old_number;
 use App\Models\user;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class homeController extends Controller
 {
