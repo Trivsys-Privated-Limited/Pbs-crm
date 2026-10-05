@@ -27,7 +27,19 @@
                     <li class=""><a href="{{ route('customerTrialTable') }}" class="text-white">Trial Page</a></li>
                     <li class=""><a href="{{ route('viewHelpTable') }}" class="text-white">Help </a></li>
                     <li class=""><a href="{{ route('help') }}" class="text-white">Help Request</a></li>
-                    <li class=""><a href="{{ route('viewCunstomerNumberTable') }}" class="text-white"> Calling Numbers</a></li>
+                    <!-- <li class=""><a href="{{ route('viewCunstomerNumberTable') }}" class="text-white"> Calling Numbers</a></li> -->
+                    <li class="relative group">
+                        <button type="button" class="text-white flex items-center gap-1 focus:outline-none">
+                            Calling Numbers
+                            <svg class="w-4 h-4 fill-current inline" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        </button>
+                        <div class="absolute left-0 hidden group-hover:block bg-white text-gray-800 shadow-lg rounded-md py-2 w-44 z-50">
+                            <a href="{{ route('viewCunstomerNumberTable') }}" class="block px-4 py-2 hover:bg-gray-100 text-sm">All Numbers</a>
+                            <a href="{{ route('viewCunstomerNumberTable', 'us') }}" class="block px-4 py-2 hover:bg-gray-100 text-sm font-medium text-blue-600">US Numbers</a>
+                            <a href="{{ route('viewCunstomerNumberTable', 'uk') }}" class="block px-4 py-2 hover:bg-gray-100 text-sm font-medium text-blue-600">UK Numbers</a>
+                           <a href="{{ route('viewCunstomerNumberTable', 'aus') }}" class="block px-4 py-2 hover:bg-gray-100 text-sm font-medium text-blue-600">AUS Numbers</a>
+                        </div>
+                    </li>
                     <li class=""><a href="{{ route('viewSaleExpiry') }}" class="text-white">Renewal</a></li>
                 </ul>
             </div>

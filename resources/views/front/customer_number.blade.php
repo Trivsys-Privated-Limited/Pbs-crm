@@ -2,6 +2,9 @@
 @extends('front.nav')
 
 @section('home')
+    <div class="text-white text-lg font-bold text-center bg-[#1D4ED8]">
+        {{ isset($region) && $region != '' ? strtoupper($region) . ' Calling Numbers' : 'All Calling Numbers' }}
+    </div>
     {{-- Search customer details --}}
     <div class="w-full h-[80px] flex justify-center items-center bg-[#1D4ED8]">
         <input type="text" name="" onkeyup="searchTable()" id="searchInput" placeholder="Search Customer"
@@ -47,7 +50,7 @@
             let perPage = 100; // Ek page me 50 records
             let isLoading = false;
             let searchQuery = '';
-
+            let currentRegion = "{{ $region ?? '' }}";
             function fetchCustomerNumbers(page = 1, search = '') {
                 if (isLoading) return;
                 isLoading = true;
@@ -67,11 +70,18 @@
                 $.ajax({
                     url: "{{ route('getAllCallingNumbers') }}",
                     method: 'GET',
-                    data: {
+                    /*data: {
                         page: page,
                         per_page: perPage,
                         search: search
-                    },
+                    },*/
+                    data: {
+                         page: page,
+                         per_page: perPage,
+                         search: search,
+                         region: currentRegion
+                     },
+
                     success: function(response) {
                         let tableBody = $('#tableBody');
 

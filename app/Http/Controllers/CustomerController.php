@@ -118,15 +118,23 @@ class CustomerController extends Controller
         return view('front.customer_trial', compact('customers'));
     }
 
-    public function viewCunstomerNumberTable()
+    /*public function viewCunstomerNumberTable()
     {
         return view('front.customer_number');
+    }*/
+        // Region wise Show in Agent Side 06-30-2026
+
+       public function viewCunstomerNumberTable($region = null)
+    {
+    return view('front.customer_number', compact('region'));
     }
+ 
 
     public function getAllCallingNumbers(Request $request)
     {
         $perPage = $request->get('per_page', 50);
         $search  = $request->get('search', '');
+        $region  = $request->get('region', ''); // 👈 Naya: region capture karein
 
         $query = CustomerNumber::with('user')
             ->where('agent', Auth::id())
@@ -143,7 +151,11 @@ class CustomerController extends Controller
                     END")
             ->orderBy('status', 'desc')
             ->latest();
-
+// 👈 Naya: Agar US, UK ya AUS select ho toh wahi numbers filter hon
+        if (! empty($region)) {
+            $query->where('region', $region);
+        }
+        
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('customer_name', 'LIKE', "%{$search}%")
