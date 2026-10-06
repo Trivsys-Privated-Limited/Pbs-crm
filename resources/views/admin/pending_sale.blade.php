@@ -91,11 +91,94 @@
     </div>
     </div>
 
-    <script>
+   <!-- <script>
         let fileByMonth = document.querySelector('#filterbyMonth');
         let FilterMonthForm = document.querySelector('#filterbyMonthForm');
         fileByMonth.addEventListener('change', () => {
             FilterMonthForm.submit();
         });
+    </script> -->
+
+        <script>
+        let fileByMonth = document.querySelector('#filterbyMonth');
+        let FilterMonthForm = document.querySelector('#filterbyMonthForm');
+        if (fileByMonth && FilterMonthForm) {
+            fileByMonth.addEventListener('change', () => {
+                FilterMonthForm.submit();
+            });
+        }
     </script>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // DataTables instance lena
+        var table = $('#example1').DataTable();
+
+        // 1. Search ke barabar Agent Filter ka Dropdown design karna
+        var agentFilterHtml = `
+            <label style="margin-right: 15px; margin-bottom: 0; font-weight: normal; display: inline-flex; align-items: center;">
+                <span style="margin-right: 6px; font-weight: 600;">Select Agent: </span>
+                <select id="agentFilterSelect" class="form-control form-control-sm" style="display: inline-block; width: auto; min-width: 140px;">
+                    <option value="">All Agents</option>
+                </select>
+            </label>
+        `;
+
+        // 2. Search input box ke side (left side) me add karna
+        $('#example1_filter').prepend(agentFilterHtml);
+
+        // 3. Table ke "AGENT NAME" column (Index 8) se unique agent names nikalna
+        var agentNames = [];
+        table.column(8).data().unique().sort().each(function(d) {
+            var cleanName = $('<div>').html(d).text().trim();
+            if (cleanName && cleanName !== '' && !agentNames.includes(cleanName)) {
+                agentNames.push(cleanName);
+            }
+        });
+
+        // Dropdown me options add karna
+        agentNames.sort().forEach(function(name) {
+            $('#agentFilterSelect').append('<option value="' + name + '">' + name + '</option>');
+        });
+
+        // 4. Page refresh ke baad check karna ke pehle se koi Agent select tha ya nahi (localStorage)
+        var savedAgent = localStorage.getItem('pending_sale_selected_agent');
+
+        if (savedAgent) {
+            // Agar option mojood na ho (e.g. uski sari sale accept ho chuki hon), tab bhi option banayein
+            if ($('#agentFilterSelect option[value="' + savedAgent + '"]').length === 0) {
+                $('#agentFilterSelect').append('<option value="' + savedAgent + '">' + savedAgent + '</option>');
+            }
+            $('#agentFilterSelect').val(savedAgent);
+            
+            // Table ko us agent par filter karna (exact match)
+            var regex = '^\\s*' + escapeRegExp(savedAgent) + '\\s*$';
+            table.column(8).search(regex, true, false).draw();
+        }
+
+        // 5. Jab dropdown se Agent select kiya jaye
+        $('#agentFilterSelect').on('change', function() {
+            var selectedAgent = $(this).val();
+
+            if (selectedAgent) {
+                // LocalStorage me save karein taake Accept / Reject / Refresh par filter remove na ho
+                localStorage.setItem('pending_sale_selected_agent', selectedAgent);
+                var regex = '^\\s*' + escapeRegExp(selectedAgent) + '\\s*$';
+                table.column(8).search(regex, true, false).draw();
+            } else {
+                // "All Agents" select karne par filter khatam ho jaye
+                localStorage.removeItem('pending_sale_selected_agent');
+                table.column(8).search('').draw();
+            }
+        });
+
+        // Special characters ke liye helper function
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+    });
+</script>
+@endpush
+
