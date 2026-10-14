@@ -15,7 +15,8 @@ class support extends Model
         'agent_name', 
         'expiry_date', 
         'show_status', 
-        'status', 
+        'status',
+         'remarks', // <--- YEH NAYI LINE ADD KAREIN 
         'assigned_by_name', 
         'assigned_by_role', 
         'assigned_date',

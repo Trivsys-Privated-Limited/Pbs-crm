@@ -280,10 +280,11 @@ public function reassignLimitNotAnswering(Request $request)
 
     $assignedCount = 0;
 
-    foreach ($notAnsweringRecords as $record) {
+     foreach ($notAnsweringRecords as $record) {
         // Status ko null (reset) kar denge taake wo Support User ko pending/fresh show ho
         $record->update([
             'status' => null, 
+            'remarks' => null, // <--- YEH NAYI LINE ADD KAREIN (Is se remark N/A hojayegi)
             'expiry_date' => $request->new_expiry_date,
             'assigned_to' => $request->assigned_to,
             'assigned_date' => now()->toDateString(),
@@ -293,6 +294,7 @@ public function reassignLimitNotAnswering(Request $request)
         
         $assignedCount++;
     }
+
 
     return back()->with('success', $assignedCount . ' "Not Answering" Numbers Bulk Re-assigned Successfully!');
 }

@@ -676,6 +676,7 @@ public function storeSupportNumber(Request $req, string $id)
     $support = support::findOrFail($id);
 
     // Agar Re-assign inputs (assigned_to ya expiry_date) aaye hain (Admin / Sales Coordinator ne update kiya hai)
+        // 1. Agar Admin / Sales Coordinator Re-assign kar raha hai
     if ($req->filled('assigned_to')) {
         $support->assigned_to = $req->assigned_to;
         
@@ -687,17 +688,21 @@ public function storeSupportNumber(Request $req, string $id)
         $support->assigned_by_name = Auth::user()->name;
         $support->assigned_by_role = Auth::user()->role;
 
-        // CRITICAL: Status ko reset (NULL) kar diya gaya hai taake ye number Not-Answering se hakar Support User ki "supportNumbers" list mein chala jaye
+        // Re-assign par status reset (NULL) taake Support User ko fresh show ho
         $support->status = $req->filled('status') ? $req->status : null;
-    } else {
-        // Support User dwara Status update
+
+        // Re-assign par agar nayi remark na likhi ho toh remark N/A (null) hojaye
+        $support->remarks = $req->filled('remarks') ? $req->remarks : null;
+    } 
+    // 2. Agar Support Agent apna call status update kar raha hai
+    else {
         if ($req->has('status')) {
             $support->status = $req->status;
         }
-    }
 
-    if ($req->has('remarks')) {
-        $support->remarks = $req->remarks;
+        if ($req->has('remarks')) {
+            $support->remarks = $req->remarks;
+        }
     }
 
     $support->save();
