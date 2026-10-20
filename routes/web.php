@@ -79,6 +79,7 @@ Route::middleware(CheckOfficeIP::class)->group(function () {
         /// End Multiple Lead Distribute route  ///
         Route::get('/dashboard/{id}/distribute-number', 'distributeNumberForm')->name('distributeNumberForm')->middleware(validUser::class)->middleware(validRole::class);
         Route::post('/dashboard/{id}/distributeNumberToAgent', 'distributeNumberToAgent')->name('distributeNumberToAgent')->middleware(validUser::class)->middleware(validRole::class);
+        Route::get('/dashboard/{id}/move-pending-to-old', 'movePendingToOldNumber')->name('movePendingToOldNumber')->middleware(validUser::class)->middleware(validRole::class);
         /// Sale Distribute Route ///
         Route::get('/dashboard/{id}/distributesaleToAgent', 'viewAgentDistributeSale')->name('viewAgentDistributeSale')->middleware(validUser::class)->middleware(validRole::class);
         Route::post('/dashboard/{id}/updateSaleAgent', 'updateSaleAgent')->name('updateSaleAgent')->middleware(validUser::class)->middleware(validRole::class);

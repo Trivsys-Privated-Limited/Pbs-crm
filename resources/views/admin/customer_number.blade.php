@@ -45,6 +45,7 @@
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
                                             <a href="{{ route('distributeNumberForm',$data['user']->id)  }}" class="btn btn-primary">Distribute Number</a>
+                                            <a href="{{ route('movePendingToOldNumber', $data['user']->id) }}" class="btn btn-warning" onclick="return confirm('Do you want to move only this agent’s pending numbers to Old Numbers?')">Move to Old Number</a>
                                         </td>
                                     </tr>
                                 @endforeach

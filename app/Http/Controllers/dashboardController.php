@@ -1410,6 +1410,36 @@ public function viewAgentDistributeNumbersDetail(string $id)
         return redirect()->route('viewCustomerNumber')->with(['success' => 'Distribute Numbers Successfully']);
     }
 
+        public function movePendingToOldNumber(string $id)
+    {
+        // 1. Sirf wahi numbers nikalein jinka status 'pending' ho
+        $pendingNumbers = customerNumber::where('agent', $id)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($pendingNumbers->isEmpty()) {
+            return redirect()->route('viewCustomerNumber')->with(['error' => 'No pending numbers found for this agent.']);
+        }
+
+        // 2. Region wise old_numbers table mein shift karein
+        foreach ($pendingNumbers as $item) {
+            old_number::firstOrCreate(
+                ['number' => $item->customer_number],
+                [
+                    'region' => $item->region ?? 'us',
+                ]
+            );
+        }
+
+        // 3. Sirf pending numbers ko customer_numbers se delete karein
+        customerNumber::where('agent', $id)
+            ->where('status', 'pending')
+            ->delete();
+
+        return redirect()->route('viewCustomerNumber')->with(['success' => 'Pending numbers moved to Old Numbers successfully.']);
+    }
+
+
     public function viewAgentDistributeSale(string $id)
     {
         $agentName = Customer::select('a_name')->with('user')->where('status', 'sale')->groupBy('a_name')->where('a_name', '!=', $id)->get();
