@@ -12,13 +12,13 @@ use App\Http\Controllers\payrollController;
 use App\Http\Controllers\ResignationController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\userController;
-use App\Http\Middleware\CheckOfficeIP;
+//use App\Http\Middleware\CheckOfficeIP;
 use App\Http\Middleware\validRole;
 use App\Http\Middleware\validUser;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SalesCoordinatorController;
 
-Route::middleware(CheckOfficeIP::class)->group(function () {
+//Route::middleware(CheckOfficeIP::class)->group(function () {
 
     // Sales Coordinator Route
     Route::get('/sales-coordinator/dashboard', [SalesCoordinatorController::class, 'dashboard'])
@@ -323,7 +323,7 @@ Route::post('/dashboard/reassign-limit-not-answering', 'reassignLimitNotAnswerin
 
     Route::get('/employee/profile', [EmployeController::class, 'viewEmployeeProfile'])->name('employee.profile');
 
-});
+//});
 
 Route::controller(userController::class)->group(function () {
     Route::get('/login', 'login')->name('login');
